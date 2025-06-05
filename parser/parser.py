@@ -1,7 +1,7 @@
 import copy
 from lexical_analyzer.lexical_analyzer import RPAL_Scanner
 from lexical_analyzer.lexical_analyzer import Token
-from Environment import *
+from Env import *
 
 # g;obal variables for conntrol structures
 

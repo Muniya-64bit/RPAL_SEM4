@@ -1,7 +1,7 @@
-class Environment:
+class Env:
     def __init__(self, other=None):
         if other is None:
-            self.prev = None  # Pointer to the previous environment
+            self.prev = None  # Pointer to the previous Env
             self.name = "env0"  # Default name
             self.boundVar = {}  # Map of bound variables to their values
         else:

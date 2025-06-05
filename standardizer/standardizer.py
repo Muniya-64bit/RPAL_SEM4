@@ -1,8 +1,12 @@
 import copy
-from Environment.Environment import *
+from Env.Env import *
 from parser.parser import ASTNode
-index = betaCount = 1
-j = i = 0
+
+#initial values of global varibales
+i = 0
+j = 0
+index = 1
+betaCount = 1
 
 class standardizer:
     def __init__(self, tree):
@@ -154,17 +158,11 @@ class standardizer:
 
         self.ST = copy.deepcopy(t)
         return None
-        
-        from parser.parser import i,index, j, betaCount, myStoredIndex, tempj, firstIndex, lamdaCount
 
     def createControlStructures(self, x, setOfControlStruct):
         global index, j, i, betaCount
-        # i = 0
-        # j = 0
-        # index = 1
-        # betaCount = 1
-        #initial values of global varibales
-       
+
+        
 
         if x is None:
             return
@@ -282,11 +280,11 @@ class standardizer:
     def cse_machine(self, controlStructure):
         control = []  # Stack for control structure
         m_stack = []  # Stack for operands
-        stackOfEnvironment = []  # Stack of environments
-        getCurrEnvironment = []
-        
-        currEnvIndex = 0  # Initial environment
-        currEnv = Environment()  # e0
+        stackOfEnv = []  # Stack of Envs
+        getCurrEnv = []
+        print("CSE Machine Started")
+        currEnvIndex = 0  # Initial Env
+        currEnv = Env()  # e0
 
         def isBinaryOperator(op):
             if op in [
@@ -317,8 +315,8 @@ class standardizer:
         
         m_stack.append(ASTNode(currEnv.name, "ENV"))
         control.append(ASTNode(currEnv.name, "ENV"))
-        stackOfEnvironment.append(currEnv)
-        getCurrEnvironment.append(currEnv)
+        stackOfEnv.append(currEnv)
+        getCurrEnv.append(currEnv)
 
         tempDelta = controlStructure[0]  # Get the first control structure
         for node in tempDelta:
@@ -363,7 +361,7 @@ class standardizer:
                         nextDeltaIndex
                     )  # Index of next control structure to access
                     m_stack.append(boundVar)  # Variable bouded to lambda
-                    m_stack.append(env)  # Environment it was created in
+                    m_stack.append(env)  # Env it was created in
                     m_stack.append(nextToken)  # Lambda Token
                 else:
                     m_stack.append(nextToken)  # Push token to the stack
@@ -372,23 +370,23 @@ class standardizer:
                 if machineTop.value == "lambda":  # CSE Rule 4 (Apply lambda)
                     m_stack.pop()  # ************************************************************************************************************
                     prevEnv = m_stack.pop()
-                    # Pop the environment in which it was created
+                    # Pop the Env in which it was created
                     boundVar = m_stack.pop()  # Pop variable bounded to lambda
                     nextDeltaIndex = m_stack.pop()
                     # Pop index of next control structure to access
 
-                    newEnv = Environment()  # Create new environment
+                    newEnv = Env()  # Create new Env
                     newEnv.name = "env" + str(currEnvIndex)
 
-                    tempEnv = stackOfEnvironment.copy()
+                    tempEnv = stackOfEnv.copy()
                     while (
                         tempEnv[-1].name != prevEnv.value
-                    ):  # Get the previous environment node
+                    ):  # Get the previous Env node
                         tempEnv.pop()
 
-                    newEnv.prev = tempEnv[-1]  # Set the previous environment node
+                    newEnv.prev = tempEnv[-1]  # Set the previous Env node
 
-                    # Bounding variables to the environment
+                    # Bounding variables to the Env
                     if (
                         boundVar.value == "," and m_stack[-1].value == "tau"
                     ):  # If Rand is tau
@@ -414,7 +412,7 @@ class standardizer:
                             nodeValVector = []
                             nodeValVector.append(boundValues[i])
 
-                            # Insert the bound variable and its value to the environment
+                            # Insert the bound variable and its value to the Env
                             newEnv.boundVar[boundVariables[i]] = nodeValVector
 
                     elif m_stack[-1].value == "lambda":  # If Rand is lambda
@@ -427,7 +425,7 @@ class standardizer:
                             fromStack = temp.pop()
                             nodeValVector.append(fromStack)
 
-                        # Insert the bound variable and its value to the environment
+                        # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
 
                     elif m_stack[-1].value == "Conc":  # If Rand is Conc
@@ -440,7 +438,7 @@ class standardizer:
                             fromStack = temp.pop()
                             nodeValVector.append(fromStack)
 
-                        # Insert the bound variable and its value to the environment
+                        # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
 
                     elif m_stack[-1].getVal() == "eta":  # If Rand is eta
@@ -455,21 +453,21 @@ class standardizer:
                             fromStack = temp.pop()
                             nodeValVector.append(fromStack)
 
-                        # Insert the bound variable and its value to the environment
+                        # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
                     else:  # If Rand is an Int
                         bindVarVal = m_stack.pop()
                         nodeValVector = []
                         nodeValVector.append(bindVarVal)
 
-                        # Insert the bound variable and its value to the environment
+                        # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
 
                     currEnv = newEnv
                     control.append(ASTNode(currEnv.name, "ENV"))
                     m_stack.append(ASTNode(currEnv.name, "ENV"))
-                    stackOfEnvironment.append(currEnv)
-                    getCurrEnvironment.append(currEnv)
+                    stackOfEnv.append(currEnv)
+                    getCurrEnv.append(currEnv)
 
                     deltaIndex = int(nextDeltaIndex.getVal())
                     nextDelta = controlStructure[
@@ -511,7 +509,7 @@ class standardizer:
                         etaNode.setVal("eta")
                         m_stack.pop()
 
-                        boundEnv1 = m_stack.pop()  # Pop bounded environment
+                        boundEnv1 = m_stack.pop()  # Pop bounded Env
                         boundVar1 = m_stack.pop()  # Pop bounded variable
                         deltaIndex1 = (
                             m_stack.pop()
@@ -528,7 +526,7 @@ class standardizer:
 
                 elif machineTop.getVal() == "eta":  # CSE Rule 13 (Applying f.p)
                     eta = m_stack.pop()  # Pop eta node
-                    boundEnv1 = m_stack.pop()  # Pop bounded environment
+                    boundEnv1 = m_stack.pop()  # Pop bounded Env
                     boundVar1 = m_stack.pop()  # Pop bounded variable
                     deltaIndex1 = m_stack.pop()  # Pop index of next control structure
 
@@ -585,7 +583,7 @@ class standardizer:
 
                         env = (
                             m_stack.pop()
-                        )  # Get the environment in which it was created
+                        )  # Get the Env in which it was created
                         boundVar = m_stack.pop()  # Get the variable bounded to lambda
                         num = (
                             m_stack.pop()
@@ -781,16 +779,16 @@ class standardizer:
                     )  # Pop value from stack
                     m_stack.pop()
 
-                remEnv = m_stack[-1]  # Get the environment to remove
+                remEnv = m_stack[-1]  # Get the Env to remove
 
                 if (
                     nextToken.getVal() == remEnv.getVal()
-                ):  # If the environment to remove is the same as the one on top of the control stack
+                ):  # If the Env to remove is the same as the one on top of the control stack
                     m_stack.pop()
 
-                    getCurrEnvironment.pop()
-                    if getCurrEnvironment:
-                        currEnv = getCurrEnvironment[-1]
+                    getCurrEnv.pop()
+                    if getCurrEnv:
+                        currEnv = getCurrEnv[-1]
                     else:
                         currEnv = None
                 else:
