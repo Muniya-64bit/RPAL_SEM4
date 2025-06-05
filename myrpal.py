@@ -35,7 +35,7 @@ if not hasInputError:
 
     except:
         hasInputError = True
-        print("There is no such a file :", file)
+        print("File doesn't exist :", file)
 
     if not hasInputError:
         myParser = ASTParser(tokens)
