@@ -79,14 +79,14 @@ class ASTParser:
         self.current_token = self.tokens[0]
         self.E()
         if self.errorExist:
-            print("There is an error in parsing")
+            print("Parsing error")
         elif astFlag == "-ast":
             self.preOrderTraversal(self.stack[0])
         elif astFlag == "":
             pass
         else:
             # self.errorExist = True
-            print("Give a correct input command")
+            print("Input command incorrect.")
 
     def isAnError(self):
         return self.errorExist
@@ -104,7 +104,7 @@ class ASTParser:
                 child.right = head
                 head = child
             else:
-                print("There is an error in code")
+                print("There's an error in code")
                 self.errorExist = True
         parentNode.left = head
         self.stack.append(parentNode)
