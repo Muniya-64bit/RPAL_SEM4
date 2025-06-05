@@ -1,5 +1,5 @@
 import copy
-from Environment import Environment
+from Environment.Environment import *
 from parser.parser import ASTNode
 
 class standardizer:
@@ -280,7 +280,7 @@ class standardizer:
         m_stack = []  # Stack for operands
         stackOfEnvironment = []  # Stack of environments
         getCurrEnvironment = []
-
+        print("CSE Machine Started")
         currEnvIndex = 0  # Initial environment
         currEnv = Environment()  # e0
 
@@ -310,6 +310,7 @@ class standardizer:
                 return False
 
         currEnvIndex += 1
+        
         m_stack.append(ASTNode(currEnv.name, "ENV"))
         control.append(ASTNode(currEnv.name, "ENV"))
         stackOfEnvironment.append(currEnv)
