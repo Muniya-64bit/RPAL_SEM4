@@ -1,5 +1,6 @@
 from parser.parser import *
 import sys
+from standardizer.standardizer import standardizer
 hasParsingError = False
 hasCSEError = False
 hasInputError = False

@@ -159,10 +159,10 @@ class standardizer:
         global index, j, i, betaCount
 
         #initial values of global varibales
-        # i = 0
-        # j = 0
-        # index = 1
-        # betaCount = 1
+        i = 0
+        j = 0
+        index = 1
+        betaCount = 1
 
         if x is None:
             return
