@@ -1,6 +1,8 @@
 import copy
 from Environment.Environment import *
 from parser.parser import ASTNode
+index = betaCount = 1
+j = i = 0
 
 class standardizer:
     def __init__(self, tree):
@@ -152,15 +154,17 @@ class standardizer:
 
         self.ST = copy.deepcopy(t)
         return None
+        
+        from parser.parser import i,index, j, betaCount, myStoredIndex, tempj, firstIndex, lamdaCount
 
     def createControlStructures(self, x, setOfControlStruct):
         global index, j, i, betaCount
-
+        # i = 0
+        # j = 0
+        # index = 1
+        # betaCount = 1
         #initial values of global varibales
-        i = 0
-        j = 0
-        index = 1
-        betaCount = 1
+       
 
         if x is None:
             return
@@ -280,7 +284,7 @@ class standardizer:
         m_stack = []  # Stack for operands
         stackOfEnvironment = []  # Stack of environments
         getCurrEnvironment = []
-        print("CSE Machine Started")
+        
         currEnvIndex = 0  # Initial environment
         currEnv = Environment()  # e0
 

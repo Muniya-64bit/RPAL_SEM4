@@ -4,8 +4,7 @@ from lexical_analyzer.lexical_analyzer import Token
 from Environment import *
 
 # g;obal variables for conntrol structures
-index = betaCount = 1
-j = i = 0
+
 
 
 class ASTNode:
