@@ -1,4 +1,4 @@
-from Parsar import *
+from parser.parser import *
 import sys
 hasParsingError = False
 hasCSEError = False
