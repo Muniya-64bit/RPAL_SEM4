@@ -49,11 +49,7 @@ if not hasInputError:
             for i in range(10):
                 stand.makeST(root)
 
-            
-            # Printing Standaradize tree for testing purposes
-            # print(root.getVal(), "*********************************")
-            # myParser.preOrderTraversal(root)
-            # print("********************************")
+    
 
             
             controlStructureArray = [[None for _ in range(200)] for _ in range(200)]
@@ -71,12 +67,7 @@ if not hasInputError:
                         temp.append(controlStructureArray[x][y])
                 setOfControlStruct.append(temp)
 
-
-            # print("*********************************")
-            # for i in setOfControlStruct:
-            #     for j in i:
-            #         print(j.value)
-            #     print("*********")    
+  
             
             if astFlag != "-ast":
                 try:
