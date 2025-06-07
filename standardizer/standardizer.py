@@ -282,6 +282,7 @@ class standardizer:
         m_stack = []  # Stack for operands
         stackOfEnv = []  # Stack of Envs
         getCurrEnv = []
+        print("CSE Machine Started")
 
         currEnvIndex = 0  # Initial Env
         currEnv = Env()  # e0
@@ -385,7 +386,7 @@ class standardizer:
                         tempEnv.pop()
 
                     newEnv.prev = tempEnv[-1]  # Set the previous Env node
-
+                   
                     # Bounding variables to the Env
                     if (
                         boundVar.value == "," and m_stack[-1].value == "tau"
@@ -462,7 +463,7 @@ class standardizer:
 
                         # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
-
+                    
                     currEnv = newEnv
                     control.append(ASTNode(currEnv.name, "ENV"))
                     m_stack.append(ASTNode(currEnv.name, "ENV"))
@@ -550,7 +551,7 @@ class standardizer:
 
                     m_stack.pop()
                     nextToPrint = m_stack[-1]  # Get item to print
-
+                    
                     if nextToPrint.getVal() == "tau":  # If the next item is a tuple
                         getTau = m_stack[-1]
 
@@ -635,10 +636,11 @@ class standardizer:
                         m_stack.append(ASTNode("false", "BOOL"))
 
                 elif (
+                    
                     machineTop.getVal() == "Istuple"
                 ):  # Check if next item in stack is a tuple
                     m_stack.pop()  # Pop Istuple token
-
+                    
                     isNextTau = m_stack.pop()  # Get next item in stack
 
                     if isNextTau.getType() == "tau":
@@ -780,7 +782,7 @@ class standardizer:
                     m_stack.pop()
 
                 remEnv = m_stack[-1]  # Get the Env to remove
-
+                
                 if (
                     nextToken.getVal() == remEnv.getVal()
                 ):  # If the Env to remove is the same as the one on top of the control stack
@@ -815,6 +817,7 @@ class standardizer:
                 and nextToken.getVal() != "Conc"
             ):
                 temp = currEnv
+               
                 flag = 0
                 while temp != None:
                     itr = temp.boundVar.items()
@@ -858,6 +861,7 @@ class standardizer:
                 or nextToken.getVal() == "not"
             ):
                 op = nextToken.getVal()  # Get the operator
+            
                 if isBinaryOperator(
                     nextToken.getVal()
                 ):  # If token is a binary operator

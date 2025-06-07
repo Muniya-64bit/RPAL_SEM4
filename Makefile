@@ -1,5 +1,5 @@
 # Define the directory containing the test files and the Python script
-TEST_DIR := tests
+TEST_DIR := pass
 PYTHON_SCRIPT := myrpal.py
 
 # Find all files in the test directory
