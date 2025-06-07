@@ -1,5 +1,4 @@
-
-
+# Token class to hold value and type of each token
 class Token:
     def __init__(self, value, type):
         self.value = value
@@ -7,78 +6,40 @@ class Token:
 
 
 class RPAL_Scanner:
+    # List of punctuation symbols
     punction = [")", "(", ";", ","]
 
+    # List of valid operator symbols
     operator_symbol = [
-        "+",
-        "-",
-        "*",
-        "<",
-        ">",
-        "&",
-        ".",
-        "@",
-        "/",
-        ":",
-        "=",
-        "~",
-        "|",
-        "$",
-        "!",
-        "#",
-        "%",
-        "^",
-        "_",
-        "[",
-        "]",
-        "{",
-        "}",
-        '"',
-        "`",
-        "?",
+        "+", "-", "*", "<", ">", "&", ".", "@", "/", ":", "=", "~", "|", "$",
+        "!", "#", "%", "^", "_", "[", "]", "{", "}", '"', "`", "?"
     ]
 
-
+    # List of reserved keywords in RPAL language
     RESERVED_KEYWORDS = [
-        "fn",
-        "where",
-        "let",
-        "aug",
-        "within",
-        "in",
-        "rec",
-        "eq",
-        "gr",
-        "ge",
-        "ls",
-        "le",
-        "ne",
-        "or",
-        "@",
-        "not",
-        "&",
-        "true",
-        "false",
-        "nil",
-        "dummy",
-        "and",
-        "|",
+        "fn", "where", "let", "aug", "within", "in", "rec", "eq", "gr", "ge",
+        "ls", "le", "ne", "or", "@", "not", "&", "true", "false", "nil",
+        "dummy", "and", "|"
     ]
 
+    # Elements allowed in comments
     comment_elements = ['"', "\\", " ", "\t"]
 
     def __init__(self, file):
         self.file = file
 
-    # Scannning
+    # Main scanning method
     def Scanning(self):
         Input_Tokens = []
+
+        # Open and read file content
         with open(self.file, "r") as f:
             inputString = f.read()
 
             i = 0
             while i < len(inputString):
 
+                # Process identifiers and keywords
                 if inputString[i].isalpha():
                     temp = i
                     while i + 1 < len(inputString) and (
@@ -89,10 +50,11 @@ class RPAL_Scanner:
                         i += 1
                     token = inputString[temp : i + 1]
                     if token in RPAL_Scanner.RESERVED_KEYWORDS:
-                        Input_Tokens.append(Token(token, token))
+                        Input_Tokens.append(Token(token, token))  # Reserved keyword
                     else:
                         Input_Tokens.append(Token(token, "<IDENTIFIER>"))
 
+                # Process integer literals
                 elif inputString[i].isdigit():
                     temp = i
                     while i + 1 < len(inputString) and inputString[i + 1].isdigit():
@@ -100,6 +62,7 @@ class RPAL_Scanner:
                     token = inputString[temp : i + 1]
                     Input_Tokens.append(Token(token, "<INTEGER>"))
 
+                # Skip whitespace and treat it as <DELETE>
                 elif (
                     inputString[i] == " "
                     or inputString[i] == "\t"
@@ -115,6 +78,7 @@ class RPAL_Scanner:
                     token = inputString[temp : i + 1]
                     Input_Tokens.append(Token(repr(token), "<DELETE>"))
 
+                # Handle punctuation characters
                 elif inputString[i] == "(":
                     token = "("
                     Input_Tokens.append(Token("(", "("))
@@ -131,6 +95,7 @@ class RPAL_Scanner:
                     token = ","
                     Input_Tokens.append(Token(",", ","))
 
+                # Process string literals enclosed in single quotes
                 elif inputString[i] == "'":
                     temp = i
                     while (
@@ -153,9 +118,10 @@ class RPAL_Scanner:
                         i += 1
                     if i + 1 < len(inputString) and inputString[i + 1] == "'":
                         i += 1
-                        token = inputString[temp + 1 : i]   #without ' ' marks
+                        token = inputString[temp + 1 : i]  # exclude surrounding quotes
                         Input_Tokens.append(Token(token, "<STRING>"))
 
+                # Handle line comments beginning with '//'
                 elif (
                     inputString[i] == "/"
                     and (i + 1 < len(inputString))
@@ -174,11 +140,10 @@ class RPAL_Scanner:
 
                     if i + 1 < len(inputString) and inputString[i + 1] == "\n":
                         i += 1
-                        # token = inputString[temp : i + 1]   #with last newline
-                        token = inputString[temp:i]  # without newline
+                        token = inputString[temp:i]  # discard trailing newline
                         Input_Tokens.append(Token(token, "<DELETE>"))
 
-
+                # Process operator symbols (single or compound)
                 elif inputString[i] in RPAL_Scanner.operator_symbol:
                     temp = i
                     while (
@@ -190,10 +155,8 @@ class RPAL_Scanner:
 
                 i += 1
 
-
-        # Screening
+        # Screening: remove all tokens marked <DELETE>
         Tokens = []
-
         for token in Input_Tokens:
             if token.type != "<DELETE>":
                 Tokens.append(token)
