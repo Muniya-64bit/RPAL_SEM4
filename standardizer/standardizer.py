@@ -13,29 +13,29 @@ class standardizer:
         self.tree = tree
         self.ST = None
 
-    def makeST(self, x):
-        self.makeStandardTree(x)
+    def standardize_tree(self, x):
+        self.transform_node(x)
 
-    def createNode(self, x):
+    def copy_ast_node(self, x):
         t = ASTNode(x.value, x.type)
         t.left = x.left  # Shallow copy
         t.right = None  # Setting right to None as in original code
         return t
 
-    def makeStandardTree(self, t):
+    def transform_node(self, t):
         if t is None:
             return None
 
-        self.makeStandardTree(t.left)
-        self.makeStandardTree(t.right)
+        self.transform_node(t.left)
+        self.transform_node(t.right)
 
         if t.get_label() == "let":
             if t.left.get_label() == "=":
                 t.set_label("gamma")
                 t.set_node_type("KEYWORD")
-                P = self.createNode(t.left.right)
-                X = self.createNode(t.left.left)
-                E = self.createNode(t.left.left.right)
+                P = self.copy_ast_node(t.left.right)
+                X = self.copy_ast_node(t.left.left)
+                E = self.copy_ast_node(t.left.left.right)
                 t.left = ASTNode("lambda", "KEYWORD")
                 t.left.right = E
                 lambda_node = t.left
@@ -48,19 +48,19 @@ class standardizer:
             t.set_node_type("KEYWORD")
             t.left = ASTNode(",", "PUNCTION")
             comma = t.left
-            comma.left = self.createNode(equal.left)
+            comma.left = self.copy_ast_node(equal.left)
             t.left.right = ASTNode("tau", "KEYWORD")
             tau = t.left.right
 
-            tau.left = self.createNode(equal.left.right)
+            tau.left = self.copy_ast_node(equal.left.right)
             tau = tau.left
             comma = comma.left
             equal = equal.right
 
             while equal is not None:
-                comma.right = self.createNode(equal.left)
+                comma.right = self.copy_ast_node(equal.left)
                 comma = comma.right
-                tau.right = self.createNode(equal.left.right)
+                tau.right = self.copy_ast_node(equal.left.right)
                 tau = tau.right
                 equal = equal.right
 
@@ -68,9 +68,9 @@ class standardizer:
             t.set_label("gamma")
             t.set_node_type("KEYWORD")
             if t.left.right.get_label() == "=":
-                P = self.createNode(t.left)
-                X = self.createNode(t.left.right.left)
-                E = self.createNode(t.left.right.left.right)
+                P = self.copy_ast_node(t.left)
+                X = self.copy_ast_node(t.left.right.left)
+                E = self.copy_ast_node(t.left.right.left.right)
                 t.left = ASTNode("lambda", "KEYWORD")
                 t.left.right = E
                 t.left.left = X
@@ -78,10 +78,10 @@ class standardizer:
 
         elif t.get_label() == "within":
             if t.left.get_label() == "=" and t.left.right.get_label() == "=":
-                X1 = self.createNode(t.left.left)
-                E1 = self.createNode(t.left.left.right)
-                X2 = self.createNode(t.left.right.left)
-                E2 = self.createNode(t.left.right.left.right)
+                X1 = self.copy_ast_node(t.left.left)
+                E1 = self.copy_ast_node(t.left.left.right)
+                X2 = self.copy_ast_node(t.left.right.left)
+                E2 = self.copy_ast_node(t.left.right.left.right)
                 t.set_label("=")
                 t.set_node_type("KEYWORD")
                 t.left = X2
@@ -94,8 +94,8 @@ class standardizer:
                 temp.left.right = E2
 
         elif t.get_label() == "rec" and t.left.get_label() == "=":
-            X = self.createNode(t.left.left)
-            E = self.createNode(t.left.left.right)
+            X = self.copy_ast_node(t.left.left)
+            E = self.copy_ast_node(t.left.left.right)
 
             t.set_label("=")
             t.set_node_type("KEYWORD")
@@ -105,11 +105,11 @@ class standardizer:
             ystar = t.left.right.left
 
             ystar.right = ASTNode("lambda", "KEYWORD")
-            ystar.right.left = self.createNode(X)
-            ystar.right.left.right = self.createNode(E)
+            ystar.right.left = self.copy_ast_node(X)
+            ystar.right.left.right = self.copy_ast_node(E)
 
         elif t.get_label() == "fcn_form":
-            P = self.createNode(t.left)
+            P = self.copy_ast_node(t.left)
             V = t.left.right
 
             t.set_label("=")
@@ -120,13 +120,13 @@ class standardizer:
             while V.right.right is not None:
                 temp.left.right = ASTNode("lambda", "KEYWORD")
                 temp = temp.left.right
-                temp.left = self.createNode(V)
+                temp.left = self.copy_ast_node(V)
                 V = V.right
 
             temp.left.right = ASTNode("lambda", "KEYWORD")
             temp = temp.left.right
 
-            temp.left = self.createNode(V)
+            temp.left = self.copy_ast_node(V)
             temp.left.right = V.right
 
         elif t.get_label() == "lambda":
@@ -137,18 +137,18 @@ class standardizer:
                     while V.right.right is not None:
                         temp.left.right = ASTNode("lambda", "KEYWORD")
                         temp = temp.left.right
-                        temp.left = self.createNode(V)
+                        temp.left = self.copy_ast_node(V)
                         V = V.right
 
                     temp.left.right = ASTNode("lambda", "KEYWORD")
                     temp = temp.left.right
-                    temp.left = self.createNode(V)
+                    temp.left = self.copy_ast_node(V)
                     temp.left.right = V.right
 
         elif t.get_label() == "@":
-            E1 = self.createNode(t.left)
-            N = self.createNode(t.left.right)
-            E2 = self.createNode(t.left.right.right)
+            E1 = self.copy_ast_node(t.left)
+            N = self.copy_ast_node(t.left.right)
+            E2 = self.copy_ast_node(t.left.right.right)
             t.set_label("gamma")
             t.set_node_type("KEYWORD")
             t.left = ASTNode("gamma", "KEYWORD")
@@ -159,7 +159,7 @@ class standardizer:
         self.ST = copy.deepcopy(t)
         return None
 
-    def createControlStructures(self, x, setOfControlStruct):
+    def build_control_structures(self, x, setOfControlStruct):
         global index, j, i, betaCount
 
         
@@ -194,7 +194,7 @@ class standardizer:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right, setOfControlStruct)
+            self.build_control_structures(x.left.right, setOfControlStruct)
 
             i = myStoredIndex
             j = tempj
@@ -222,20 +222,20 @@ class standardizer:
             firstIndex = k
             lamdaCount = index
 
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             diffLc = index - lamdaCount
 
             while setOfControlStruct[i][0] is not None:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right, setOfControlStruct)
+            self.build_control_structures(x.left.right, setOfControlStruct)
 
             while setOfControlStruct[i][0] is not None:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right.right, setOfControlStruct)
+            self.build_control_structures(x.left.right.right, setOfControlStruct)
 
             if diffLc == 0 or i < lamdaCount:
                 setOfControlStruct[myStoredIndex][tempj].set_label(str(firstIndex))
@@ -265,19 +265,19 @@ class standardizer:
             setOfControlStruct[i][j] = tauNode
             j += 1
 
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             x = x.left
             while x is not None:
-                self.createControlStructures(x.right, setOfControlStruct)
+                self.build_control_structures(x.right, setOfControlStruct)
                 x = x.right
         else:
             setOfControlStruct[i][j] = ASTNode(x.get_label(), x.get_node_type())
             j += 1
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             if x.left is not None:
-                self.createControlStructures(x.left.right, setOfControlStruct)
+                self.build_control_structures(x.left.right, setOfControlStruct)
 
-    def cse_machine(self, controlStructure):
+    def run_cse_machine(self, controlStructure):
         control = []  # Stack for control structure
         m_stack = []  # Stack for operands
         stackOfEnv = []  # Stack of Envs
@@ -393,7 +393,7 @@ class standardizer:
                         boundVariables = []  # Vector of bound variables
                         leftOfComa = boundVar.left  # Get the left of the comma
                         while leftOfComa:
-                            boundVariables.append(self.createNode(leftOfComa))
+                            boundVariables.append(self.copy_ast_node(leftOfComa))
                             leftOfComa = leftOfComa.right
 
                         boundValues = []  # Vector of bound values
@@ -407,7 +407,7 @@ class standardizer:
                         for i in range(len(boundValues)):
                             if boundValues[i].value == "tau":
                                 res = []
-                                self.arrangeTuple(boundValues[i], res)
+                                self.flatten_tuple(boundValues[i], res)
 
                             nodeValVector = []
                             nodeValVector.append(boundValues[i])
@@ -491,11 +491,11 @@ class standardizer:
                         tupleIndex -= 1
                         tauLeft = tauLeft.right
 
-                    selectedChild = self.createNode(tauLeft)
+                    selectedChild = self.copy_ast_node(tauLeft)
                     if selectedChild.get_label() == "lamdaTuple":
                         getNode = selectedChild.left
                         while getNode is not None:
-                            m_stack.append(self.createNode(getNode))
+                            m_stack.append(self.copy_ast_node(getNode))
                             getNode = getNode.right
                     else:
                         m_stack.append(selectedChild)
@@ -555,7 +555,7 @@ class standardizer:
                         getTau = m_stack[-1]
 
                         res = []
-                        self.arrangeTuple(getTau, res)  # Arrange the tuple into a list
+                        self.flatten_tuple(getTau, res)  # Arrange the tuple into a list
 
                         getRev = res[::-1]  # Reverse the list
 
@@ -837,12 +837,12 @@ class standardizer:
                                     if temp[i].get_label() == "lamdaTuple":
                                         myLambda = temp[i].left
                                         while myLambda != None:
-                                            m_stack.append(self.createNode(myLambda))
+                                            m_stack.append(self.copy_ast_node(myLambda))
                                             myLambda = myLambda.right
                                     else:
                                         if temp[i].get_label() == "tau":
                                             res = []
-                                            self.arrangeTuple(temp[i], res)
+                                            self.flatten_tuple(temp[i], res)
                                         m_stack.append(temp[i])
                                     i += 1
                             flag = 1
@@ -1034,7 +1034,7 @@ class standardizer:
                     prevEnv.right = lamda
                     tupleNode.left = myLambda
                 else:
-                    tupleNode.left = self.createNode(m_stack[-1])
+                    tupleNode.left = self.copy_ast_node(m_stack[-1])
                     m_stack.pop()
                 sibling = tupleNode.left
                 for i in range(1, numOfItems):
@@ -1063,9 +1063,9 @@ class standardizer:
                         sibling = sibling.right
                 m_stack.append(tupleNode)
             elif nextToken.get_label() == "aug":
-                token1 = self.createNode(m_stack[-1])
+                token1 = self.copy_ast_node(m_stack[-1])
                 m_stack.pop()
-                token2 = self.createNode(m_stack[-1])
+                token2 = self.copy_ast_node(m_stack[-1])
                 m_stack.pop()
                 if token1.get_label() == "nil" and token2.get_label() == "nil":
                     tupleNode = ASTNode("tau", "tau")
@@ -1083,13 +1083,13 @@ class standardizer:
                     tupleNode = token2.left
                     while tupleNode.right != None:
                         tupleNode = tupleNode.right
-                    tupleNode.right = self.createNode(token1)
+                    tupleNode.right = self.copy_ast_node(token1)
                     m_stack.append(token2)
                 elif token2.get_node_type() != "tau":
                     tupleNode = token1.left
                     while tupleNode.right != None:
                         tupleNode = tupleNode.right
-                    tupleNode.right = self.createNode(token2)
+                    tupleNode.right = self.copy_ast_node(token2)
                     m_stack.append(token1)
                 else:
                     tupleNode = ASTNode("tau", "tau")
@@ -1097,15 +1097,15 @@ class standardizer:
                     tupleNode.left.right = token2
                     m_stack.append(tupleNode)
 
-    def arrangeTuple(self, tau_node, res):
+    def flatten_tuple(self, tau_node, res):
         if tau_node is None:
             return
         if tau_node.get_label() == "lamdaTuple":
             return
         if tau_node.get_label() != "tau" and tau_node.get_label() != "nil":
             res.append(tau_node)
-        self.arrangeTuple(tau_node.left, res)
-        self.arrangeTuple(tau_node.right, res)
+        self.flatten_tuple(tau_node.left, res)
+        self.flatten_tuple(tau_node.right, res)
 
     def addSpaces(self, temp):
         temp = temp.replace("\\n", '\n').replace("\\t", '\t')

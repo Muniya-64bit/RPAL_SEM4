@@ -14,7 +14,7 @@ class ASTNode:
         self.indentation = 0  # Indentation level for pretty printing
 
     # Factory method to create new nodes
-    def createNode(self, value, type):
+    def copy_ast_node(self, value, type):
         return ASTNode(value, type)
 
     # Setter methods
