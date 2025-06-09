@@ -422,14 +422,14 @@ class standardizer:
                                 res = []
                                 self.flatten_tuple(boundValues[i], res)
 
-                            nodeValVector = []
-                            nodeValVector.append(boundValues[i])
+                            node_values = []
+                            node_values.append(boundValues[i])
 
                             # Create environment binding
-                            newEnv.boundVar[boundVariables[i]] = nodeValVector
+                            newEnv.boundVar[boundVariables[i]] = node_values
 
                     elif execution_stack[-1].value == "lambda":  # Handle lambda as right operand
-                        nodeValVector = []
+                        node_values = []
                         temp = []
                         # Pop lambda components from stack
                         for _ in range(4):
@@ -438,13 +438,13 @@ class standardizer:
                         # Reconstruct in correct order
                         while temp:
                             fromStack = temp.pop()
-                            nodeValVector.append(fromStack)
+                            node_values.append(fromStack)
 
                         # Create environment binding for lambda
-                        newEnv.boundVar[boundVar] = nodeValVector
+                        newEnv.boundVar[boundVar] = node_values
 
                     elif execution_stack[-1].value == "Conc":  # Handle string concatenation operand
-                        nodeValVector = []
+                        node_values = []
                         temp = []
                         # Pop concatenation components
                         for _ in range(2):
@@ -452,13 +452,13 @@ class standardizer:
 
                         while temp:
                             fromStack = temp.pop()
-                            nodeValVector.append(fromStack)
+                            node_values.append(fromStack)
 
                         # Create environment binding
-                        newEnv.boundVar[boundVar] = nodeValVector
+                        newEnv.boundVar[boundVar] = node_values
 
                     elif execution_stack[-1].get_label() == "eta":  # Handle eta expression operand
-                        nodeValVector = []
+                        node_values = []
                         temp = []
                         j = 0
                         # Pop eta components
@@ -468,17 +468,17 @@ class standardizer:
 
                         while temp:
                             fromStack = temp.pop()
-                            nodeValVector.append(fromStack)
+                            node_values.append(fromStack)
 
                         # Create environment binding
-                        newEnv.boundVar[boundVar] = nodeValVector
+                        newEnv.boundVar[boundVar] = node_values
                     else:  # Handle primitive value operand
                         bindVarVal = execution_stack.pop()
-                        nodeValVector = []
-                        nodeValVector.append(bindVarVal)
+                        node_values = []
+                        node_values.append(bindVarVal)
 
                         # Create simple environment binding
-                        newEnv.boundVar[boundVar] = nodeValVector
+                        newEnv.boundVar[boundVar] = node_values
                     
                     # Update current environment
                     currEnv = newEnv
