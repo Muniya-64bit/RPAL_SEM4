@@ -338,15 +338,15 @@ class standardizer:
 
         # Main execution loop
         while control:
-            nextToken = control.pop()  # Fetch next instruction
+            controlToken = control.pop()  # Fetch next instruction
 
-            if nextToken.value == "nil":
-                nextToken.type = "tau"
+            if controlToken.value == "nil":
+                controlToken.type = "tau"
 
             # Handle different token types
             if (
-                nextToken.type in ["INT", "STR"]
-                or nextToken.value
+                controlToken.type in ["INT", "STR"]
+                or controlToken.value
                 in [
                     "lambda",
                     "YSTAR",
@@ -363,9 +363,9 @@ class standardizer:
                     "Order",
                     "nil",
                 ]
-                or nextToken.type in ["BOOL", "NIL", "DUMMY"]
+                or controlToken.type in ["BOOL", "NIL", "DUMMY"]
             ):
-                if nextToken.value == "lambda":
+                if controlToken.value == "lambda":
                     # Process lambda expression
                     boundVar = control.pop()
                     nextDeltaIndex = control.pop()
@@ -374,10 +374,10 @@ class standardizer:
                     execution_stack.append(nextDeltaIndex)
                     execution_stack.append(boundVar)
                     execution_stack.append(env)
-                    execution_stack.append(nextToken)
+                    execution_stack.append(controlToken)
                 else:
-                    execution_stack.append(nextToken)
-            elif nextToken.value == "gamma":
+                    execution_stack.append(controlToken)
+            elif controlToken.value == "gamma":
                 # Handle function application
                 machineTop = execution_stack[-1]
                 if machineTop.value == "lambda":
@@ -772,7 +772,7 @@ class standardizer:
                         firstString.left = ASTNode("true", "flag")
 
             elif (
-                nextToken.get_label()[0:3] == "env"
+                controlToken.get_label()[0:3] == "env"
             ):  # Environment switching operation
                 removeFromMachineToPutBack = []
                 if (
@@ -795,7 +795,7 @@ class standardizer:
                 remEnv = execution_stack[-1]  
                 
                 if (
-                    nextToken.get_label() == remEnv.get_label()
+                    controlToken.get_label() == remEnv.get_label()
                 ):  
                     execution_stack.pop()
                     
@@ -815,17 +815,17 @@ class standardizer:
 
             # If an identifier is on top of the control stack (CSE Rule 5)
             elif (
-                nextToken.get_node_type() == "ID"
-                and nextToken.get_label() != "Print"
-                and nextToken.get_label() != "Isinteger"
-                and nextToken.get_label() != "Istruthvalue"
-                and nextToken.get_label() != "Isstring"
-                and nextToken.get_label() != "Istuple"
-                and nextToken.get_label() != "Isfunction"
-                and nextToken.get_label() != "Isdummy"
-                and nextToken.get_label() != "Stem"
-                and nextToken.get_label() != "Stern"
-                and nextToken.get_label() != "Conc"
+                controlToken.get_node_type() == "ID"
+                and controlToken.get_label() != "Print"
+                and controlToken.get_label() != "Isinteger"
+                and controlToken.get_label() != "Istruthvalue"
+                and controlToken.get_label() != "Isstring"
+                and controlToken.get_label() != "Istuple"
+                and controlToken.get_label() != "Isfunction"
+                and controlToken.get_label() != "Isdummy"
+                and controlToken.get_label() != "Stem"
+                and controlToken.get_label() != "Stern"
+                and controlToken.get_label() != "Conc"
             ):
                 temp = currEnv
                
@@ -833,7 +833,7 @@ class standardizer:
                 while temp != None:
                     itr = temp.boundVar.items()
                     for key, value in itr:
-                        if nextToken.get_label() == key.get_label():
+                        if controlToken.get_label() == key.get_label():
                             temp = value
                             if (
                                 len(temp) == 1
@@ -867,14 +867,14 @@ class standardizer:
 
             # If a keyword is on top of the control stack
             elif (
-                isBinaryOperator(nextToken.get_label())
-                or nextToken.get_label() == "neg"
-                or nextToken.get_label() == "not"
+                isBinaryOperator(controlToken.get_label())
+                or controlToken.get_label() == "neg"
+                or controlToken.get_label() == "not"
             ):
-                op = nextToken.get_label()  
+                op = controlToken.get_label()  
             
                 if isBinaryOperator(
-                    nextToken.get_label()
+                    controlToken.get_label()
                 ):  # Handle binary operators
                     node1 = execution_stack[-1]  
                     execution_stack.pop()
@@ -1008,7 +1008,7 @@ class standardizer:
                             execution_stack.pop()
                             execution_stack.append(ASTNode("true", "BOOL"))
 
-            elif nextToken.get_label() == "beta":
+            elif controlToken.get_label() == "beta":
                 boolVal = execution_stack[-1]
                 execution_stack.pop()
                 elseIndex = control[-1]
@@ -1023,7 +1023,7 @@ class standardizer:
                 nextDelta = controlStructure[index]
                 for i in range(len(nextDelta)):
                     control.append(nextDelta[i])
-            elif nextToken.get_label() == "tau":
+            elif controlToken.get_label() == "tau":
                 tupleNode = ASTNode("tau", "tau")
                 noOfItems = control[-1]
                 control.pop()
@@ -1074,7 +1074,7 @@ class standardizer:
                         sibling.right = temp
                         sibling = sibling.right
                 execution_stack.append(tupleNode)
-            elif nextToken.get_label() == "aug":
+            elif controlToken.get_label() == "aug":
                 token1 = self.copy_ast_node(execution_stack[-1])
                 execution_stack.pop()
                 token2 = self.copy_ast_node(execution_stack[-1])
