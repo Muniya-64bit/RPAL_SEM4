@@ -31,136 +31,135 @@ class RPAL_Scanner:
 
     # Scanning function to tokenize the input file
     def Scanning(self):
-        Input_Tokens = []
+        token_list = []
 
         # 
         with open(self.file, "r") as f:
-            inputString = f.read()
+            text_buffer = f.read()
 
             i = 0
-            while i < len(inputString):
+            while i < len(text_buffer):
 
                 # process identifiers and reserved keywords
-                if inputString[i].isalpha():
+                if text_buffer[i].isalpha():
                     temp = i
-                    while i + 1 < len(inputString) and (
-                        (inputString[i + 1].isalpha())
-                        or (inputString[i + 1].isdigit())
-                        or (inputString[i + 1] == "_")
+                    while i + 1 < len(text_buffer) and (
+                        (text_buffer[i + 1].isalpha())
+                        or (text_buffer[i + 1].isdigit())
+                        or (text_buffer[i + 1] == "_")
                     ):
                         i += 1
-                    token = inputString[temp : i + 1]
-                    if token in RPAL_Scanner.RESERVED_KEYWORDS:
-                        Input_Tokens.append(Token(token, token))  # Reserved keyword
+                    lexeme = text_buffer[temp : i + 1]
+                    if lexeme in RPAL_Scanner.RESERVED_KEYWORDS:
+                        token_list.append(Token(lexeme, lexeme))  # Reserved keyword
                     else:
-                        Input_Tokens.append(Token(token, "<IDENTIFIER>"))
+                        token_list.append(Token(lexeme, "<IDENTIFIER>"))
 
                 
-                elif inputString[i].isdigit():
+                elif text_buffer[i].isdigit():
                     temp = i
-                    while i + 1 < len(inputString) and inputString[i + 1].isdigit():
+                    while i + 1 < len(text_buffer) and text_buffer[i + 1].isdigit():
                         i += 1
-                    token = inputString[temp : i + 1]
-                    Input_Tokens.append(Token(token, "<INTEGER>"))
+                    lexeme = text_buffer[temp : i + 1]
+                    token_list.append(Token(lexeme, "<INTEGER>"))
 
                 # Handle whitespace characters and delete them
                 elif (
-                    inputString[i] == " "
-                    or inputString[i] == "\t"
-                    or inputString[i] == "\n"
+                    text_buffer[i] == " "
+                    or text_buffer[i] == "\t"
+                    or text_buffer[i] == "\n"
                 ):
                     temp = i
-                    while i + 1 < len(inputString) and (
-                        inputString[i + 1] == " "
-                        or inputString[i + 1] == "\t"
-                        or inputString[i + 1] == "\n"
+                    while i + 1 < len(text_buffer) and (
+                        text_buffer[i + 1] == " "
+                        or text_buffer[i + 1] == "\t"
+                        or text_buffer[i + 1] == "\n"
                     ):
                         i += 1
-                    token = inputString[temp : i + 1]
-                    Input_Tokens.append(Token(repr(token), "<DELETE>"))
+                    lexeme = text_buffer[temp : i + 1]
+                    token_list.append(Token(repr(lexeme), "<DELETE>"))
 
                 # Process punctuation characters
-                elif inputString[i] == "(":
-                    token = "("
-                    Input_Tokens.append(Token("(", "("))
+                elif text_buffer[i] == "(":
+                    lexeme = "("
+                    token_list.append(Token("(", "("))
 
-                elif inputString[i] == ")":
-                    token = ")"
-                    Input_Tokens.append(Token(")", ")"))
+                elif text_buffer[i] == ")":
+                    lexeme = ")"
+                    token_list.append(Token(")", ")"))
 
-                elif inputString[i] == ";":
-                    token = ";"
-                    Input_Tokens.append(Token(";", ";"))
+                elif text_buffer[i] == ";":
+                    lexeme = ";"
+                    token_list.append(Token(";", ";"))
 
-                elif inputString[i] == ",":
-                    token = ","
-                    Input_Tokens.append(Token(",", ","))
+                elif text_buffer[i] == ",":
+                    lexeme = ","
+                    token_list.append(Token(",", ","))
 
                 # Handle string literals enclosed in double quotes
-                elif inputString[i] == "'":
+                elif text_buffer[i] == "'":
                     temp = i
                     while (
-                        i + 1 < len(inputString)
+                        i + 1 < len(text_buffer)
                         and (
-                            inputString[i + 1] == "\t"
-                            or inputString[i + 1] == "\n"
-                            or inputString[i + 1] == "\\"
-                            or inputString[i + 1] == "("
-                            or inputString[i + 1] == ")"
-                            or inputString[i + 1] == ";"
-                            or inputString[i + 1] == ","
-                            or inputString[i + 1] == " "
-                            or inputString[i + 1].isalpha()
-                            or inputString[i + 1].isdigit()
-                            or inputString[i + 1] in RPAL_Scanner.operator_symbol
+                            text_buffer[i + 1] == "\t"
+                            or text_buffer[i + 1] == "\n"
+                            or text_buffer[i + 1] == "\\"
+                            or text_buffer[i + 1] == "("
+                            or text_buffer[i + 1] == ")"
+                            or text_buffer[i + 1] == ";"
+                            or text_buffer[i + 1] == ","
+                            or text_buffer[i + 1] == " "
+                            or text_buffer[i + 1].isalpha()
+                            or text_buffer[i + 1].isdigit()
+                            or text_buffer[i + 1] in RPAL_Scanner.operator_symbol
                         )
-                        and inputString[i + 1] != "'"
+                        and text_buffer[i + 1] != "'"
                     ):
                         i += 1
-                    if i + 1 < len(inputString) and inputString[i + 1] == "'":
+                    if i + 1 < len(text_buffer) and text_buffer[i + 1] == "'":
                         i += 1
-                        token = inputString[temp + 1 : i]  # exclude surrounding quotes
-                        Input_Tokens.append(Token(token, "<STRING>"))
+                        lexeme = text_buffer[temp + 1 : i]  # exclude surrounding quotes
+                        token_list.append(Token(lexeme, "<STRING>"))
 
                 # Process comments starting with "//"
                 elif (
-                    inputString[i] == "/"
-                    and (i + 1 < len(inputString))
-                    and inputString[i + 1] == "/"
+                    text_buffer[i] == "/"
+                    and (i + 1 < len(text_buffer))
+                    and text_buffer[i + 1] == "/"
                 ):
                     temp = i
-                    while i + 1 < len(inputString) and (
-                        (inputString[i + 1] in RPAL_Scanner.comment_elements)
-                        or inputString[i + 1] in RPAL_Scanner.punction
-                        or inputString[i + 1].isalpha()
-                        or inputString[i + 1].isdigit()
-                        or inputString[i + 1] in RPAL_Scanner.operator_symbol
-                        and (not (inputString[i + 1] == "\n"))
+                    while i + 1 < len(text_buffer) and (
+                        (text_buffer[i + 1] in RPAL_Scanner.comment_elements)
+                        or text_buffer[i + 1] in RPAL_Scanner.punction
+                        or text_buffer[i + 1].isalpha()
+                        or text_buffer[i + 1].isdigit()
+                        or text_buffer[i + 1] in RPAL_Scanner.operator_symbol
+                        and (not (text_buffer[i + 1] == "\n"))
                     ):
                         i += 1
 
-                    if i + 1 < len(inputString) and inputString[i + 1] == "\n":
+                    if i + 1 < len(text_buffer) and text_buffer[i + 1] == "\n":
                         i += 1
-                        token = inputString[temp:i]  
-                        Input_Tokens.append(Token(token, "<DELETE>"))
+                        lexeme = text_buffer[temp:i]  
+                        token_list.append(Token(lexeme, "<DELETE>"))
 
                 # Handle operator symbols
                 
-                elif inputString[i] in RPAL_Scanner.operator_symbol:
+                elif text_buffer[i] in RPAL_Scanner.operator_symbol:
                     temp = i
                     while (
-                        i + 1 < len(inputString) and inputString[i + 1] in RPAL_Scanner.operator_symbol
+                        i + 1 < len(text_buffer) and text_buffer[i + 1] in RPAL_Scanner.operator_symbol
                     ):
                         i += 1
-                    token = inputString[temp : i + 1]
-                    Input_Tokens.append(Token(token, "<OPERATOR>"))
+                    lexeme = text_buffer[temp : i + 1]
+                    token_list.append(Token(lexeme, "<OPERATOR>"))
 
                 i += 1
 
         # Remove tokens of type "<DELETE>"
         Tokens = []
-        for token in Input_Tokens:
-            if token.type != "<DELETE>":
-                Tokens.append(token)
-
+        for lexeme in token_list:
+            if lexeme.type != "<DELETE>":
+                Tokens.append(lexeme)
         return Tokens
