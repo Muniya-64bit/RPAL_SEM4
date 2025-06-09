@@ -101,7 +101,7 @@ class ASTParser:
             self.preOrderTraversal(node.right, depth)
 
     # Terminal and basic non-terminal methods
-    def Rn(self):
+    def parse_atom(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
             self.buildTree(self.prevToken.value, "ID", 0)
@@ -168,7 +168,7 @@ class ASTParser:
 
     # Expression methods (ordered from lowest to highest precedence)
     def R(self):
-        self.Rn()
+        self.parse_atom()
         while self.current_token.type in [
             "<IDENTIFIER>",
             "<INTEGER>",
@@ -180,7 +180,7 @@ class ASTParser:
             "(",
             "dummy",
         ]:
-            self.Rn()
+            self.parse_atom()
             self.buildTree("gamma", "KEYWORD", 2)
 
     def Ap(self):
