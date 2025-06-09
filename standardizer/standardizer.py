@@ -31,7 +31,7 @@ class standardizer:
 
         if t.getVal() == "let":
             if t.left.getVal() == "=":
-                t.setVal("gamma")
+                t.set_label("gamma")
                 t.set_node_type("KEYWORD")
                 P = self.createNode(t.left.right)
                 X = self.createNode(t.left.left)
@@ -44,7 +44,7 @@ class standardizer:
 
         elif t.getVal() == "and" and t.left.getVal() == "=":
             equal = t.left
-            t.setVal("=")
+            t.set_label("=")
             t.set_node_type("KEYWORD")
             t.left = ASTNode(",", "PUNCTION")
             comma = t.left
@@ -65,7 +65,7 @@ class standardizer:
                 equal = equal.right
 
         elif t.getVal() == "where":
-            t.setVal("gamma")
+            t.set_label("gamma")
             t.set_node_type("KEYWORD")
             if t.left.right.getVal() == "=":
                 P = self.createNode(t.left)
@@ -82,7 +82,7 @@ class standardizer:
                 E1 = self.createNode(t.left.left.right)
                 X2 = self.createNode(t.left.right.left)
                 E2 = self.createNode(t.left.right.left.right)
-                t.setVal("=")
+                t.set_label("=")
                 t.set_node_type("KEYWORD")
                 t.left = X2
                 t.left.right = ASTNode("gamma", "KEYWORD")
@@ -97,7 +97,7 @@ class standardizer:
             X = self.createNode(t.left.left)
             E = self.createNode(t.left.left.right)
 
-            t.setVal("=")
+            t.set_label("=")
             t.set_node_type("KEYWORD")
             t.left = X
             t.left.right = ASTNode("gamma", "KEYWORD")
@@ -112,7 +112,7 @@ class standardizer:
             P = self.createNode(t.left)
             V = t.left.right
 
-            t.setVal("=")
+            t.set_label("=")
             t.set_node_type("KEYWORD")
             t.left = P
 
@@ -149,7 +149,7 @@ class standardizer:
             E1 = self.createNode(t.left)
             N = self.createNode(t.left.right)
             E2 = self.createNode(t.left.right.right)
-            t.setVal("gamma")
+            t.set_label("gamma")
             t.set_node_type("KEYWORD")
             t.left = ASTNode("gamma", "KEYWORD")
             t.left.right = E2
@@ -238,11 +238,11 @@ class standardizer:
             self.createControlStructures(x.left.right.right, setOfControlStruct)
 
             if diffLc == 0 or i < lamdaCount:
-                setOfControlStruct[myStoredIndex][tempj].setVal(str(firstIndex))
+                setOfControlStruct[myStoredIndex][tempj].set_label(str(firstIndex))
             else:
-                setOfControlStruct[myStoredIndex][tempj].setVal(str(i - 1))
+                setOfControlStruct[myStoredIndex][tempj].set_label(str(i - 1))
 
-            setOfControlStruct[myStoredIndex][tempj + 1].setVal(str(i))
+            setOfControlStruct[myStoredIndex][tempj + 1].set_label(str(i))
 
             i = myStoredIndex
             j = 0
@@ -507,7 +507,7 @@ class standardizer:
                         etaNode = ASTNode(
                             m_stack[-1].getVal(), m_stack[-1].getType()
                         )  # Create eta node
-                        etaNode.setVal("eta")
+                        etaNode.set_label("eta")
                         m_stack.pop()
 
                         boundEnv1 = m_stack.pop()  # Pop bounded Env

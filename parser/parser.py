@@ -21,7 +21,7 @@ class ASTNode:
     def set_node_type(self, type):
         self.type = type
 
-    def setVal(self, value):
+    def set_label(self, value):
         self.value = value
 
     # Getter methods
