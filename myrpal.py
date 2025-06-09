@@ -55,7 +55,7 @@ if not hasInputError:
 
             # Initialize 2D array for control structures
             controlStructureArray = [[None for _ in range(200)] for _ in range(200)]
-            stand.createControlStructures(root, controlStructureArray)  # Populate control structures
+            stand.build_control_structures(root, controlStructureArray)  # Populate control structures
 
             # Determine actual size of control structure set
             size = 0
@@ -74,7 +74,7 @@ if not hasInputError:
             # Run the CSE machine only if AST print flag is not enabled
             if astFlag != "-ast":
                 try:
-                    stand.cse_machine(setOfControlStruct)  # Execute control structure evaluation
+                    stand.run_cse_machine(setOfControlStruct)  # Execute control structure evaluation
                 except Exception as e:
                     print("CSE machine error")
                     print(e)

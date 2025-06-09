@@ -159,7 +159,7 @@ class standardizer:
         self.ST = copy.deepcopy(t)
         return None
 
-    def createControlStructures(self, x, setOfControlStruct):
+    def build_control_structures(self, x, setOfControlStruct):
         global index, j, i, betaCount
 
         
@@ -194,7 +194,7 @@ class standardizer:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right, setOfControlStruct)
+            self.build_control_structures(x.left.right, setOfControlStruct)
 
             i = myStoredIndex
             j = tempj
@@ -222,20 +222,20 @@ class standardizer:
             firstIndex = k
             lamdaCount = index
 
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             diffLc = index - lamdaCount
 
             while setOfControlStruct[i][0] is not None:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right, setOfControlStruct)
+            self.build_control_structures(x.left.right, setOfControlStruct)
 
             while setOfControlStruct[i][0] is not None:
                 i += 1
             j = 0
 
-            self.createControlStructures(x.left.right.right, setOfControlStruct)
+            self.build_control_structures(x.left.right.right, setOfControlStruct)
 
             if diffLc == 0 or i < lamdaCount:
                 setOfControlStruct[myStoredIndex][tempj].set_label(str(firstIndex))
@@ -265,19 +265,19 @@ class standardizer:
             setOfControlStruct[i][j] = tauNode
             j += 1
 
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             x = x.left
             while x is not None:
-                self.createControlStructures(x.right, setOfControlStruct)
+                self.build_control_structures(x.right, setOfControlStruct)
                 x = x.right
         else:
             setOfControlStruct[i][j] = ASTNode(x.get_label(), x.get_node_type())
             j += 1
-            self.createControlStructures(x.left, setOfControlStruct)
+            self.build_control_structures(x.left, setOfControlStruct)
             if x.left is not None:
-                self.createControlStructures(x.left.right, setOfControlStruct)
+                self.build_control_structures(x.left.right, setOfControlStruct)
 
-    def cse_machine(self, controlStructure):
+    def run_cse_machine(self, controlStructure):
         control = []  # Stack for control structure
         m_stack = []  # Stack for operands
         stackOfEnv = []  # Stack of Envs
@@ -407,7 +407,7 @@ class standardizer:
                         for i in range(len(boundValues)):
                             if boundValues[i].value == "tau":
                                 res = []
-                                self.arrangeTuple(boundValues[i], res)
+                                self.flatten_tuple(boundValues[i], res)
 
                             nodeValVector = []
                             nodeValVector.append(boundValues[i])
@@ -555,7 +555,7 @@ class standardizer:
                         getTau = m_stack[-1]
 
                         res = []
-                        self.arrangeTuple(getTau, res)  # Arrange the tuple into a list
+                        self.flatten_tuple(getTau, res)  # Arrange the tuple into a list
 
                         getRev = res[::-1]  # Reverse the list
 
@@ -842,7 +842,7 @@ class standardizer:
                                     else:
                                         if temp[i].get_label() == "tau":
                                             res = []
-                                            self.arrangeTuple(temp[i], res)
+                                            self.flatten_tuple(temp[i], res)
                                         m_stack.append(temp[i])
                                     i += 1
                             flag = 1
@@ -1097,15 +1097,15 @@ class standardizer:
                     tupleNode.left.right = token2
                     m_stack.append(tupleNode)
 
-    def arrangeTuple(self, tau_node, res):
+    def flatten_tuple(self, tau_node, res):
         if tau_node is None:
             return
         if tau_node.get_label() == "lamdaTuple":
             return
         if tau_node.get_label() != "tau" and tau_node.get_label() != "nil":
             res.append(tau_node)
-        self.arrangeTuple(tau_node.left, res)
-        self.arrangeTuple(tau_node.right, res)
+        self.flatten_tuple(tau_node.left, res)
+        self.flatten_tuple(tau_node.right, res)
 
     def addSpaces(self, temp):
         temp = temp.replace("\\n", '\n').replace("\\t", '\t')
