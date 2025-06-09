@@ -23,8 +23,8 @@ This project is a full implementation of an interpreter for **RPAL (Right-refere
 1. Clone this repository:
 
    ```bash
-   git clone https://github.com/yourusername/rpal-interpreter.git
-   cd rpal-interpreter
+   git clone https://github.com/Muniya-64bit/RPAL_SEM4.git
+   cd rpal_sem4
    ```
 
 2. No external libraries are required. The interpreter uses only standard Python libraries.
