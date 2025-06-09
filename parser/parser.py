@@ -28,7 +28,7 @@ class ASTNode:
     def get_label(self):
         return self.value
 
-    def getType(self):
+    def get_node_type(self):
         return self.type
 
 # Main parser class that builds the AST from tokens
