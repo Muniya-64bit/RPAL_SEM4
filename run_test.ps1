@@ -11,12 +11,15 @@ switch ($choice) {
     "1" {
         foreach ($file in $testFiles) {
             Write-Host "`nRunning normal test for $($file.Name)"
+            Write-Host "Answer: "
             python $script $file.FullName
+            Write-Host "`n "
         }
     }
     "2" {
         foreach ($file in $testFiles) {
             Write-Host "`nRunning AST test for $($file.Name)"
+            Write-Host "Answer: "
             python $script -ast $file.FullName
             Write-Host "`n "
         }

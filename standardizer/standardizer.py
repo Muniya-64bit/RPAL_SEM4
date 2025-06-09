@@ -282,7 +282,6 @@ class standardizer:
         m_stack = []  # Stack for operands
         stackOfEnv = []  # Stack of Envs
         getCurrEnv = []
-        print("CSE Machine Started")
 
         currEnvIndex = 0  # Initial Env
         currEnv = Env()  # e0
