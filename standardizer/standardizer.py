@@ -29,8 +29,8 @@ class standardizer:
         self.makeStandardTree(t.left)
         self.makeStandardTree(t.right)
 
-        if t.getVal() == "let":
-            if t.left.getVal() == "=":
+        if t.get_label() == "let":
+            if t.left.get_label() == "=":
                 t.set_label("gamma")
                 t.set_node_type("KEYWORD")
                 P = self.createNode(t.left.right)
@@ -42,7 +42,7 @@ class standardizer:
                 lambda_node.left = X
                 lambda_node.left.right = P
 
-        elif t.getVal() == "and" and t.left.getVal() == "=":
+        elif t.get_label() == "and" and t.left.get_label() == "=":
             equal = t.left
             t.set_label("=")
             t.set_node_type("KEYWORD")
@@ -64,10 +64,10 @@ class standardizer:
                 tau = tau.right
                 equal = equal.right
 
-        elif t.getVal() == "where":
+        elif t.get_label() == "where":
             t.set_label("gamma")
             t.set_node_type("KEYWORD")
-            if t.left.right.getVal() == "=":
+            if t.left.right.get_label() == "=":
                 P = self.createNode(t.left)
                 X = self.createNode(t.left.right.left)
                 E = self.createNode(t.left.right.left.right)
@@ -76,8 +76,8 @@ class standardizer:
                 t.left.left = X
                 t.left.left.right = P
 
-        elif t.getVal() == "within":
-            if t.left.getVal() == "=" and t.left.right.getVal() == "=":
+        elif t.get_label() == "within":
+            if t.left.get_label() == "=" and t.left.right.get_label() == "=":
                 X1 = self.createNode(t.left.left)
                 E1 = self.createNode(t.left.left.right)
                 X2 = self.createNode(t.left.right.left)
@@ -93,7 +93,7 @@ class standardizer:
                 temp.left = X1
                 temp.left.right = E2
 
-        elif t.getVal() == "rec" and t.left.getVal() == "=":
+        elif t.get_label() == "rec" and t.left.get_label() == "=":
             X = self.createNode(t.left.left)
             E = self.createNode(t.left.left.right)
 
@@ -108,7 +108,7 @@ class standardizer:
             ystar.right.left = self.createNode(X)
             ystar.right.left.right = self.createNode(E)
 
-        elif t.getVal() == "fcn_form":
+        elif t.get_label() == "fcn_form":
             P = self.createNode(t.left)
             V = t.left.right
 
@@ -129,7 +129,7 @@ class standardizer:
             temp.left = self.createNode(V)
             temp.left.right = V.right
 
-        elif t.getVal() == "lambda":
+        elif t.get_label() == "lambda":
             if t.left is not None:
                 V = t.left
                 temp = t
@@ -145,7 +145,7 @@ class standardizer:
                     temp.left = self.createNode(V)
                     temp.left.right = V.right
 
-        elif t.getVal() == "@":
+        elif t.get_label() == "@":
             E1 = self.createNode(t.left)
             N = self.createNode(t.left.right)
             E2 = self.createNode(t.left.right.right)
@@ -167,7 +167,7 @@ class standardizer:
         if x is None:
             return
 
-        if x.getVal() == "lambda":
+        if x.get_label() == "lambda":
             t1 = i
             k = 0
             setOfControlStruct[i][j] = ASTNode("", "")
@@ -198,7 +198,7 @@ class standardizer:
 
             i = myStoredIndex
             j = tempj
-        elif x.getVal() == "->":
+        elif x.get_label() == "->":
             myStoredIndex = i
             tempj = j
             nextDelta = index
@@ -250,7 +250,7 @@ class standardizer:
             while setOfControlStruct[i][j] is not None:
                 j += 1
             betaCount += 2
-        elif x.getVal() == "tau":
+        elif x.get_label() == "tau":
             tauLeft = x.left
             numOfChildren = 0
             while tauLeft is not None:
@@ -271,7 +271,7 @@ class standardizer:
                 self.createControlStructures(x.right, setOfControlStruct)
                 x = x.right
         else:
-            setOfControlStruct[i][j] = ASTNode(x.getVal(), x.getType())
+            setOfControlStruct[i][j] = ASTNode(x.get_label(), x.getType())
             j += 1
             self.createControlStructures(x.left, setOfControlStruct)
             if x.left is not None:
@@ -442,7 +442,7 @@ class standardizer:
                         # Insert the bound variable and its value to the Env
                         newEnv.boundVar[boundVar] = nodeValVector
 
-                    elif m_stack[-1].getVal() == "eta":  # If Rand is eta
+                    elif m_stack[-1].get_label() == "eta":  # If Rand is eta
                         nodeValVector = []
                         temp = []
                         j = 0
@@ -470,7 +470,7 @@ class standardizer:
                     stackOfEnv.append(currEnv)
                     getCurrEnv.append(currEnv)
 
-                    deltaIndex = int(nextDeltaIndex.getVal())
+                    deltaIndex = int(nextDeltaIndex.get_label())
                     nextDelta = controlStructure[
                         deltaIndex
                     ]  # Get the next control structure
@@ -480,12 +480,12 @@ class standardizer:
                         )  # Push each element of the next control structure to the control stack
                     currEnvIndex += 1
 
-                elif machineTop.getVal() == "tau":  # CSE Rule 10 (Tuple Selection)
+                elif machineTop.get_label() == "tau":  # CSE Rule 10 (Tuple Selection)
                     tau = m_stack.pop()  # Get tau node from top of stack
                     selectTupleIndex = (
                         m_stack.pop()
                     )  # Get the index of the child to be selected
-                    tupleIndex = int(selectTupleIndex.getVal())
+                    tupleIndex = int(selectTupleIndex.get_label())
 
                     tauLeft = tau.left
                     while tupleIndex > 1:  # Get the child to be selected
@@ -493,7 +493,7 @@ class standardizer:
                         tauLeft = tauLeft.right
 
                     selectedChild = self.createNode(tauLeft)
-                    if selectedChild.getVal() == "lamdaTuple":
+                    if selectedChild.get_label() == "lamdaTuple":
                         getNode = selectedChild.left
                         while getNode is not None:
                             m_stack.append(self.createNode(getNode))
@@ -501,11 +501,11 @@ class standardizer:
                     else:
                         m_stack.append(selectedChild)
 
-                elif machineTop.getVal() == "YSTAR":  # CSE Rule 12 (Applying YStar)
+                elif machineTop.get_label() == "YSTAR":  # CSE Rule 12 (Applying YStar)
                     m_stack.pop()  # Pop YSTAR token
-                    if m_stack[-1].getVal() == "lambda":
+                    if m_stack[-1].get_label() == "lambda":
                         etaNode = ASTNode(
-                            m_stack[-1].getVal(), m_stack[-1].getType()
+                            m_stack[-1].get_label(), m_stack[-1].getType()
                         )  # Create eta node
                         etaNode.set_label("eta")
                         m_stack.pop()
@@ -525,7 +525,7 @@ class standardizer:
                         print("Error")
                         return  # Error
 
-                elif machineTop.getVal() == "eta":  # CSE Rule 13 (Applying f.p)
+                elif machineTop.get_label() == "eta":  # CSE Rule 13 (Applying f.p)
                     eta = m_stack.pop()  # Pop eta node
                     boundEnv1 = m_stack.pop()  # Pop bounded Env
                     boundVar1 = m_stack.pop()  # Pop bounded variable
@@ -547,12 +547,12 @@ class standardizer:
                     control.append(ASTNode("gamma", "KEYWORD"))
                     control.append(ASTNode("gamma", "KEYWORD"))
 
-                elif machineTop.getVal() == "Print":  # Print next item on stack
+                elif machineTop.get_label() == "Print":  # Print next item on stack
 
                     m_stack.pop()
                     nextToPrint = m_stack[-1]  # Get item to print
                     
-                    if nextToPrint.getVal() == "tau":  # If the next item is a tuple
+                    if nextToPrint.get_label() == "tau":  # If the next item is a tuple
                         getTau = m_stack[-1]
 
                         res = []
@@ -566,19 +566,19 @@ class standardizer:
                                 -1
                             ]  # Get the top item of the stack (equivalent to getRev.top())
                             if top_item.getType() == "STR":
-                                print(self.addSpaces(top_item.getVal()), end=", ")
+                                print(self.addSpaces(top_item.get_label()), end=", ")
                             else:
-                                print(top_item.getVal(), end=", ")
+                                print(top_item.get_label(), end=", ")
                             getRev.pop()  # Remove the top item from the stack
 
                         top_item = getRev[-1]  # Get the remaining top item of the stack
                         if top_item.getType() == "STR":
-                            print(self.addSpaces(top_item.getVal()), end=")")
+                            print(self.addSpaces(top_item.get_label()), end=")")
                         else:
-                            print(top_item.getVal(), end=")")
+                            print(top_item.get_label(), end=")")
                         getRev.pop()  # Remove the last remaining item from the stack
                     elif (
-                        nextToPrint.getVal() == "lambda"
+                        nextToPrint.get_label() == "lambda"
                     ):  # If the next item is a lambda token
                         m_stack.pop()  # Pop lambda token
 
@@ -590,17 +590,17 @@ class standardizer:
                             m_stack.pop()
                         )  # Get the index of next control structure to access
 
-                        print(f"[lambda closure: {boundVar.getVal()}: {num.getVal()}]")
+                        print(f"[lambda closure: {boundVar.get_label()}: {num.get_label()}]")
                         return
 
                     else:  # If the next item is a string or integer
                         if m_stack[-1].getType() == "STR":
-                            print(self.addSpaces(m_stack[-1].getVal()), end="")
+                            print(self.addSpaces(m_stack[-1].get_label()), end="")
                         else:
-                            print(m_stack[-1].getVal(), end="")
+                            print(m_stack[-1].get_label(), end="")
 
                 elif (
-                    machineTop.getVal() == "Isinteger"
+                    machineTop.get_label() == "Isinteger"
                 ):  # Check if next item in stack is an integer
                     m_stack.pop()  # Pop Isinteger token
 
@@ -612,19 +612,19 @@ class standardizer:
                         m_stack.append(ASTNode("false", "boolean"))
 
                 elif (
-                    machineTop.getVal() == "Istruthvalue"
+                    machineTop.get_label() == "Istruthvalue"
                 ):  # Check if next item in stack is a boolean value
                     m_stack.pop()  # Pop Istruthvalue token
 
                     isNextBool = m_stack.pop()  # Get next item in stack
 
-                    if isNextBool.getVal() == "true" or isNextBool.getVal() == "false":
+                    if isNextBool.get_label() == "true" or isNextBool.get_label() == "false":
                         m_stack.append(ASTNode("true", "BOOL"))
                     else:
                         m_stack.append(ASTNode("false", "BOOL"))
 
                 elif (
-                    machineTop.getVal() == "Isstring"
+                    machineTop.get_label() == "Isstring"
                 ):  # Check if next item in stack is a string
                     m_stack.pop()  # Pop Isstring token
 
@@ -637,7 +637,7 @@ class standardizer:
 
                 elif (
                     
-                    machineTop.getVal() == "Istuple"
+                    machineTop.get_label() == "Istuple"
                 ):  # Check if next item in stack is a tuple
                     m_stack.pop()  # Pop Istuple token
                     
@@ -651,13 +651,13 @@ class standardizer:
                         m_stack.append(resNode)
 
                 elif (
-                    machineTop.getVal() == "Isfunction"
+                    machineTop.get_label() == "Isfunction"
                 ):  # Check if next item in stack is a function
                     m_stack.pop()  # Pop Isfunction token
 
                     isNextFn = m_stack[-1] # Get next item in stack
 
-                    if isNextFn.getVal() == "lambda":
+                    if isNextFn.get_label() == "lambda":
                         resNode = ASTNode("true", "BOOL")
                         m_stack.append(resNode)
                     else:
@@ -665,53 +665,53 @@ class standardizer:
                         m_stack.append(resNode)
 
                 elif (
-                    machineTop.getVal() == "Isdummy"
+                    machineTop.get_label() == "Isdummy"
                 ):  # Check if next item in stack is dummy
                     m_stack.pop()  # Pop Isdummy token
 
                     isNextDmy = m_stack[-1]  # Get next item in stack
 
-                    if isNextDmy.getVal() == "dummy":
+                    if isNextDmy.get_label() == "dummy":
                         resNode = ASTNode("true", "BOOL")
                         m_stack.append(resNode)
                     else:
                         resNode = ASTNode("false", "BOOL")
                         m_stack.append(resNode)
 
-                elif machineTop.getVal() == "Stem":  # Get first character of string
+                elif machineTop.get_label() == "Stem":  # Get first character of string
                     m_stack.pop()  # Pop Stem token
                     isNextString = m_stack[-1]  # Get next item in stack
 
-                    if isNextString.getVal() == "":
+                    if isNextString.get_label() == "":
                         return
 
                     if isNextString.getType() == "STR":
                         strRes = (
-                             isNextString.getVal()[0]
+                             isNextString.get_label()[0]
                         )  # Get first character
                         m_stack.pop()
                         m_stack.append(ASTNode(strRes, "STR"))
 
                 elif (
-                    machineTop.getVal() == "Stern"
+                    machineTop.get_label() == "Stern"
                 ):  # Get remaining characters other the first character
                     m_stack.pop()  # Pop Stern token
                     isNextString = m_stack[-1]  # Get next item in stack
 
-                    if isNextString.getVal() == "":
+                    if isNextString.get_label() == "":
                         return
 
                     if isNextString.getType() == "STR":
                         strRes = (
 
-                            isNextString.getVal()[1:]
+                            isNextString.get_label()[1:]
 
-                            # "'" + isNextString.getVal()[:] + "'"
+                            # "'" + isNextString.get_label()[:] + "'"
                         )  # Get remaining characters
                         m_stack.pop()
                         m_stack.append(ASTNode(strRes, "STR"))
 
-                elif machineTop.getVal() == "Order":  # Get number of items in tuple
+                elif machineTop.get_label() == "Order":  # Get number of items in tuple
                     m_stack.pop()  # Pop Order token
 
                     numOfItems = 0
@@ -726,13 +726,13 @@ class standardizer:
 
                     getTau = m_stack.pop()
 
-                    if getTau.getVal() == "nil":
+                    if getTau.get_label() == "nil":
                         numOfItems = 0
 
                     orderNode = ASTNode(str(numOfItems), "INT")
                     m_stack.append(orderNode)
 
-                elif machineTop.getVal() == "Conc":  # Concatenate two strings
+                elif machineTop.get_label() == "Conc":  # Concatenate two strings
                     concNode = m_stack.pop()  # Pop Conc token
 
                     firstString = m_stack.pop()  # Get first string
@@ -742,16 +742,16 @@ class standardizer:
                     if secondString.getType() == "STR" or (
                         secondString.getType() == "STR"
                         and secondString.left is not None
-                        and secondString.left.getVal() == "true"
+                        and secondString.left.get_label() == "true"
                     ):
                         m_stack.pop()
                         # res = (
                         #     "'"
-                        #     + firstString.getVal()[1:-1]
-                        #     + secondString.getVal()[1:-1]
+                        #     + firstString.get_label()[1:-1]
+                        #     + secondString.get_label()[1:-1]
                         #     + "'"
                         # )
-                        res =  firstString.getVal() + secondString.getVal()
+                        res =  firstString.get_label() + secondString.get_label()
                         resNode = ASTNode(res, "STR")
                         m_stack.append(resNode)
                         control.pop()
@@ -761,11 +761,11 @@ class standardizer:
                         firstString.left = ASTNode("true", "flag")
 
             elif (
-                nextToken.getVal()[0:3] == "env"
+                nextToken.get_label()[0:3] == "env"
             ):  # If env token is on top of control stack (CSE Rule 5)
                 removeFromMachineToPutBack = []
                 if (
-                    m_stack[-1].getVal() == "lambda"
+                    m_stack[-1].get_label() == "lambda"
                 ):  # Pop lambda token and its parameters
                     removeFromMachineToPutBack.append(m_stack[-1])
                     m_stack.pop()
@@ -784,7 +784,7 @@ class standardizer:
                 remEnv = m_stack[-1]  # Get the Env to remove
                 
                 if (
-                    nextToken.getVal() == remEnv.getVal()
+                    nextToken.get_label() == remEnv.get_label()
                 ):  # If the Env to remove is the same as the one on top of the control stack
                     m_stack.pop()
 
@@ -805,16 +805,16 @@ class standardizer:
             # If any variables are on top of the control stack
             elif (
                 nextToken.getType() == "ID"
-                and nextToken.getVal() != "Print"
-                and nextToken.getVal() != "Isinteger"
-                and nextToken.getVal() != "Istruthvalue"
-                and nextToken.getVal() != "Isstring"
-                and nextToken.getVal() != "Istuple"
-                and nextToken.getVal() != "Isfunction"
-                and nextToken.getVal() != "Isdummy"
-                and nextToken.getVal() != "Stem"
-                and nextToken.getVal() != "Stern"
-                and nextToken.getVal() != "Conc"
+                and nextToken.get_label() != "Print"
+                and nextToken.get_label() != "Isinteger"
+                and nextToken.get_label() != "Istruthvalue"
+                and nextToken.get_label() != "Isstring"
+                and nextToken.get_label() != "Istuple"
+                and nextToken.get_label() != "Isfunction"
+                and nextToken.get_label() != "Isdummy"
+                and nextToken.get_label() != "Stem"
+                and nextToken.get_label() != "Stern"
+                and nextToken.get_label() != "Conc"
             ):
                 temp = currEnv
                
@@ -822,11 +822,11 @@ class standardizer:
                 while temp != None:
                     itr = temp.boundVar.items()
                     for key, value in itr:
-                        if nextToken.getVal() == key.getVal():
+                        if nextToken.get_label() == key.get_label():
                             temp = value
                             if (
                                 len(temp) == 1
-                                and temp[0].getVal() == "Conc"
+                                and temp[0].get_label() == "Conc"
                                 and temp[0].left != None
                             ):
                                 control.append(ASTNode("gamma", "KEYWORD"))
@@ -835,13 +835,13 @@ class standardizer:
                             else:
                                 i = 0
                                 while i < len(temp):
-                                    if temp[i].getVal() == "lamdaTuple":
+                                    if temp[i].get_label() == "lamdaTuple":
                                         myLambda = temp[i].left
                                         while myLambda != None:
                                             m_stack.append(self.createNode(myLambda))
                                             myLambda = myLambda.right
                                     else:
-                                        if temp[i].getVal() == "tau":
+                                        if temp[i].get_label() == "tau":
                                             res = []
                                             self.arrangeTuple(temp[i], res)
                                         m_stack.append(temp[i])
@@ -856,14 +856,14 @@ class standardizer:
 
             # If a binary or unary operator is on top of the control stack (CSE Rule 6 and CSE Rule 7)
             elif (
-                isBinaryOperator(nextToken.getVal())
-                or nextToken.getVal() == "neg"
-                or nextToken.getVal() == "not"
+                isBinaryOperator(nextToken.get_label())
+                or nextToken.get_label() == "neg"
+                or nextToken.get_label() == "not"
             ):
-                op = nextToken.getVal()  # Get the operator
+                op = nextToken.get_label()  # Get the operator
             
                 if isBinaryOperator(
-                    nextToken.getVal()
+                    nextToken.get_label()
                 ):  # If token is a binary operator
                     node1 = m_stack[-1]  # Get the first operand
                     m_stack.pop()
@@ -872,8 +872,8 @@ class standardizer:
                     m_stack.pop()
 
                     if node1.getType() == "INT" and node2.getType() == "INT":
-                        num1 = int(float(node1.getVal()))
-                        num2 = int(float(node2.getVal()))
+                        num1 = int(float(node1.get_label()))
+                        num2 = int(float(node2.get_label()))
 
                         res = 0
                         resPow = 0.0
@@ -934,33 +934,33 @@ class standardizer:
                     elif node1.getType() == "STR" and node2.getType() == "STR":
                         if op == "ne" or op == "<>":
                             resStr = (
-                                "true" if node1.getVal() != node2.getVal() else "false"
+                                "true" if node1.get_label() != node2.get_label() else "false"
                             )
                             res = ASTNode(resStr, "BOOL")
                             m_stack.append(res)
                         elif op == "eq" or op == "==":
                             resStr = (
-                                "true" if node1.getVal() == node2.getVal() else "false"
+                                "true" if node1.get_label() == node2.get_label() else "false"
                             )
                             res = ASTNode(resStr, "BOOL")
                             m_stack.append(res)
-                    elif (node1.getVal() == "true" or node1.getVal() == "false") and (
-                        node2.getVal() == "false" or node2.getVal() == "true"
+                    elif (node1.get_label() == "true" or node1.get_label() == "false") and (
+                        node2.get_label() == "false" or node2.get_label() == "true"
                     ):
                         if op == "ne" or op == "<>":
                             resStr = (
-                                "true" if node1.getVal() != node2.getVal() else "false"
+                                "true" if node1.get_label() != node2.get_label() else "false"
                             )
                             res = ASTNode(resStr, "BOOL")
                             m_stack.append(res)
                         elif op == "eq" or op == "==":
                             resStr = (
-                                "true" if node1.getVal() == node2.getVal() else "false"
+                                "true" if node1.get_label() == node2.get_label() else "false"
                             )
                             res = ASTNode(resStr, "BOOL")
                             m_stack.append(res)
                         elif op == "or":
-                            if node1.getVal() == "true" or node2.getVal() == "true":
+                            if node1.get_label() == "true" or node2.get_label() == "true":
                                 resStr = "true"
                                 res = ASTNode(resStr, "BOOL")
                                 m_stack.append(res)
@@ -969,7 +969,7 @@ class standardizer:
                                 res = ASTNode(resStr, "BOOL")
                                 m_stack.append(res)
                         elif op == "&":
-                            if node1.getVal() == "true" and node2.getVal() == "true":
+                            if node1.get_label() == "true" and node2.get_label() == "true":
                                 resStr = "true"
                                 res = ASTNode(resStr, "BOOL")
                                 m_stack.append(res)
@@ -981,23 +981,23 @@ class standardizer:
                     if op == "neg":
                         node1 = m_stack[-1]
                         m_stack.pop()
-                        num1 = int(node1.getVal())
+                        num1 = int(node1.get_label())
                         res = -num1
                         stri = str(res)
                         resStr = ASTNode(stri, "INT")
                         m_stack.append(resStr)
                     elif op == "not" and (
-                        m_stack[-1].getVal() == "true"
-                        or m_stack[-1].getVal() == "false"
+                        m_stack[-1].get_label() == "true"
+                        or m_stack[-1].get_label() == "false"
                     ):
-                        if m_stack[-1].getVal() == "true":
+                        if m_stack[-1].get_label() == "true":
                             m_stack.pop()
                             m_stack.append(ASTNode("false", "BOOL"))
                         else:
                             m_stack.pop()
                             m_stack.append(ASTNode("true", "BOOL"))
 
-            elif nextToken.getVal() == "beta":
+            elif nextToken.get_label() == "beta":
                 boolVal = m_stack[-1]
                 m_stack.pop()
                 elseIndex = control[-1]
@@ -1005,27 +1005,27 @@ class standardizer:
                 thenIndex = control[-1]
                 control.pop()
                 index = 0
-                if boolVal.getVal() == "true":
-                    index = int(thenIndex.getVal())
+                if boolVal.get_label() == "true":
+                    index = int(thenIndex.get_label())
                 else:
-                    index = int(elseIndex.getVal())
+                    index = int(elseIndex.get_label())
                 nextDelta = controlStructure[index]
                 for i in range(len(nextDelta)):
                     control.append(nextDelta[i])
-            elif nextToken.getVal() == "tau":
+            elif nextToken.get_label() == "tau":
                 tupleNode = ASTNode("tau", "tau")
                 noOfItems = control[-1]
                 control.pop()
-                numOfItems = int(noOfItems.getVal())
-                if m_stack[-1].getVal() == "lambda":
-                    lamda = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                numOfItems = int(noOfItems.get_label())
+                if m_stack[-1].get_label() == "lambda":
+                    lamda = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                     m_stack.pop()
-                    prevEnv = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                    prevEnv = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                     m_stack.pop()
-                    boundVar = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                    boundVar = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                     m_stack.pop()
                     nextDeltaIndex = ASTNode(
-                        m_stack[-1].getVal(), m_stack[-1].getType()
+                        m_stack[-1].get_label(), m_stack[-1].getType()
                     )
                     m_stack.pop()
                     myLambda = ASTNode("lamdaTuple", "lamdaTuple")
@@ -1040,15 +1040,15 @@ class standardizer:
                 sibling = tupleNode.left
                 for i in range(1, numOfItems):
                     temp = m_stack[-1]
-                    if temp.getVal() == "lambda":
-                        lamda = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                    if temp.get_label() == "lambda":
+                        lamda = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                         m_stack.pop()
-                        prevEnv = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                        prevEnv = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                         m_stack.pop()
-                        boundVar = ASTNode(m_stack[-1].getVal(), m_stack[-1].getType())
+                        boundVar = ASTNode(m_stack[-1].get_label(), m_stack[-1].getType())
                         m_stack.pop()
                         nextDeltaIndex = ASTNode(
-                            m_stack[-1].getVal(), m_stack[-1].getType()
+                            m_stack[-1].get_label(), m_stack[-1].getType()
                         )
                         m_stack.pop()
                         myLambda = ASTNode("lamdaTuple", "lamdaTuple")
@@ -1063,20 +1063,20 @@ class standardizer:
                         sibling.right = temp
                         sibling = sibling.right
                 m_stack.append(tupleNode)
-            elif nextToken.getVal() == "aug":
+            elif nextToken.get_label() == "aug":
                 token1 = self.createNode(m_stack[-1])
                 m_stack.pop()
                 token2 = self.createNode(m_stack[-1])
                 m_stack.pop()
-                if token1.getVal() == "nil" and token2.getVal() == "nil":
+                if token1.get_label() == "nil" and token2.get_label() == "nil":
                     tupleNode = ASTNode("tau", "tau")
                     tupleNode.left = token1
                     m_stack.append(tupleNode)
-                elif token1.getVal() == "nil":
+                elif token1.get_label() == "nil":
                     tupleNode = ASTNode("tau", "tau")
                     tupleNode.left = token2
                     m_stack.append(tupleNode)
-                elif token2.getVal() == "nil":
+                elif token2.get_label() == "nil":
                     tupleNode = ASTNode("tau", "tau")
                     tupleNode.left = token1
                     m_stack.append(tupleNode)
@@ -1101,9 +1101,9 @@ class standardizer:
     def arrangeTuple(self, tau_node, res):
         if tau_node is None:
             return
-        if tau_node.getVal() == "lamdaTuple":
+        if tau_node.get_label() == "lamdaTuple":
             return
-        if tau_node.getVal() != "tau" and tau_node.getVal() != "nil":
+        if tau_node.get_label() != "tau" and tau_node.get_label() != "nil":
             res.append(tau_node)
         self.arrangeTuple(tau_node.left, res)
         self.arrangeTuple(tau_node.right, res)

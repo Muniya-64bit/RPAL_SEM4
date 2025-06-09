@@ -25,7 +25,7 @@ class ASTNode:
         self.value = value
 
     # Getter methods
-    def getVal(self):
+    def get_label(self):
         return self.value
 
     def getType(self):
