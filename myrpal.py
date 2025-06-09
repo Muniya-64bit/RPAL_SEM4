@@ -51,7 +51,7 @@ if not hasInputError:
             stand = standardizer(root)  # Create standardizer instance
 
             for i in range(10):
-                stand.makeST(root)  # Standardize tree (run multiple times)
+                stand.standardize_tree(root)  # Standardize tree (run multiple times)
 
             # Initialize 2D array for control structures
             controlStructureArray = [[None for _ in range(200)] for _ in range(200)]
