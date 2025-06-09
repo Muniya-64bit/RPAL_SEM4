@@ -44,7 +44,7 @@ class ASTParser:
     # Core parsing methods
     def startParsing(self, astFlag):
         self.current_token = self.tokens[0]
-        self.E()  # Start with E production rule
+        self.parse_expression()  # Start with E production rule
         
         if self.errorExist:
             print("Parsing error")
@@ -122,7 +122,7 @@ class ASTParser:
             self.buildTree("nil", "NIL", 0)
         elif self.current_token.value == "(":
             self.read("(", "(")
-            self.E()
+            self.parse_expression()
             if self.current_token.value != ")":
                 print("Error: expected )")
                 self.errorExist = True
@@ -327,7 +327,7 @@ class ASTParser:
             self.parse_variable_list()
             if self.current_token.value == "=":
                 self.read("=", "<OPERATOR>")
-                self.E()
+                self.parse_expression()
                 self.buildTree("=", "KEYWORD", 2)
             else:
                 self.parse_variable_binding()
@@ -340,7 +340,7 @@ class ASTParser:
                     self.errorExist = True
                     return
                 self.read("=", "<OPERATOR>")
-                self.E()
+                self.parse_expression()
                 self.buildTree("fcn_form", "KEYWORD", n + 2)
 
     def parse_recursive_binding(self):
@@ -376,7 +376,7 @@ class ASTParser:
             self.parse_recursive_binding()
             self.buildTree("where", "KEYWORD", 2)
 
-    def E(self):
+    def parse_expression(self):
         if self.current_token.value == "let":
             self.read("let", "<KEYWORD>")
             self.D()
@@ -385,7 +385,7 @@ class ASTParser:
                 self.errorExist = True
                 return
             self.read("in", "<KEYWORD>")
-            self.E()
+            self.parse_expression()
             self.buildTree("let", "KEYWORD", 2)
         elif self.current_token.value == "fn":
             self.read("fn", "<KEYWORD>")
@@ -399,7 +399,7 @@ class ASTParser:
                 self.errorExist = True
                 return
             self.read(".", "<OPERATOR>")
-            self.E()
+            self.parse_expression()
             self.buildTree("lambda", "KEYWORD", n + 1)
         else:
             self.parse_where_expression()
