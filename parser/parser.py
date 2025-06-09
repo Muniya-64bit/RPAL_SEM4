@@ -167,7 +167,7 @@ class ASTParser:
                 self.buildTree(",", "KEYWORD", n + 1)
 
     # Expression methods (ordered from lowest to highest precedence)
-    def R(self):
+    def parse_application(self):
         self.parse_atom()
         while self.current_token.type in [
             "<IDENTIFIER>",
@@ -184,12 +184,12 @@ class ASTParser:
             self.buildTree("gamma", "KEYWORD", 2)
 
     def parse_access(self):
-        self.R()
+        self.parse_application()
         while self.current_token.value == "@":
             self.read("@", "<OPERATOR>")
             self.read("UserDefined", "<IDENTIFIER>")
             self.buildTree(self.prevToken.value, "ID", 0)
-            self.R()
+            self.parse_application()
             self.buildTree("@", "KEYWORD", 3)
 
     def parse_exponentiation(self):
