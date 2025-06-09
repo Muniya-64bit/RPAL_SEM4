@@ -49,7 +49,7 @@ class ASTParser:
         if self.errorExist:
             print("Parsing error")
         elif astFlag == "-ast":
-            self.preOrderTraversal(self.stack[0])
+            self.print_pre_order(self.stack[0])
         elif astFlag == "":
             pass
         else:
@@ -75,7 +75,7 @@ class ASTParser:
             self.current_token.value = self.prevToken.value
             self.current_token.type = ""
 
-    def buildTree(self, token, type, numOfChilds):
+    def construct_ast_node(self, token, type, numOfChilds):
         parentNode = ASTNode(token, type)
         head = None
         for i in range(numOfChilds):
@@ -89,7 +89,7 @@ class ASTParser:
         parentNode.left = head
         self.stack.append(parentNode)
 
-    def preOrderTraversal(self, node, depth=0):
+    def print_pre_order(self, node, depth=0):
         if node is not None:
             if node.type in ["ID", "STR", "INT"]:
                 print("." * depth + "<" + node.type + ":" + node.value + ">")
@@ -97,29 +97,29 @@ class ASTParser:
                 print("." * depth + "<" + node.value + ">")
             else:
                 print("." * depth + node.value)
-            self.preOrderTraversal(node.left, depth + 1)
-            self.preOrderTraversal(node.right, depth)
+            self.print_pre_order(node.left, depth + 1)
+            self.print_pre_order(node.right, depth)
 
     # Terminal and basic non-terminal methods
     def parse_atom(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
-            self.buildTree(self.prevToken.value, "ID", 0)
+            self.construct_ast_node(self.prevToken.value, "ID", 0)
         elif self.current_token.type == "<INTEGER>":
             self.read("UserDefined", "<INTEGER>")
-            self.buildTree(self.prevToken.value, "INT", 0)
+            self.construct_ast_node(self.prevToken.value, "INT", 0)
         elif self.current_token.type == "<STRING>":
             self.read("UserDefined", "<STRING>")
-            self.buildTree(self.prevToken.value, "STR", 0)
+            self.construct_ast_node(self.prevToken.value, "STR", 0)
         elif self.current_token.value == "true":
             self.read("true", "<KEYWORD>")
-            self.buildTree("true", "BOOL", 0)
+            self.construct_ast_node("true", "BOOL", 0)
         elif self.current_token.value == "false":
             self.read("false", "<KEYWORD>")
-            self.buildTree("false", "BOOL", 0)
+            self.construct_ast_node("false", "BOOL", 0)
         elif self.current_token.value == "nil":
             self.read("nil", "<KEYWORD>")
-            self.buildTree("nil", "NIL", 0)
+            self.construct_ast_node("nil", "NIL", 0)
         elif self.current_token.value == "(":
             self.read("(", "(")
             self.parse_expression()
@@ -130,12 +130,12 @@ class ASTParser:
             self.read(")", ")")
         elif self.current_token.value == "dummy":
             self.read("dummy", "<KEYWORD>")
-            self.buildTree("dummy", "DUMMY", 0)
+            self.construct_ast_node("dummy", "DUMMY", 0)
 
     def parse_variable_binding(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
-            self.buildTree(self.prevToken.value, "ID", 0)
+            self.construct_ast_node(self.prevToken.value, "ID", 0)
         elif self.current_token.value == "(":
             self.read("(", "(")
             if self.current_token.type == "<IDENTIFIER>":
@@ -151,20 +151,20 @@ class ASTParser:
                     self.errorExist = True
                     return
                 self.read(")", ")")
-                self.buildTree("()", "KEYWORD", 0)
+                self.construct_ast_node("()", "KEYWORD", 0)
 
     def parse_variable_list(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
-            self.buildTree(self.prevToken.value, "ID", 0)
+            self.construct_ast_node(self.prevToken.value, "ID", 0)
             n = 0
             while self.current_token.value == ",":
                 self.read(",", ",")
                 self.read("UserDefined", "<IDENTIFIER>")
-                self.buildTree(self.prevToken.value, "ID", 0)
+                self.construct_ast_node(self.prevToken.value, "ID", 0)
                 n += 1
             if n > 0:
-                self.buildTree(",", "KEYWORD", n + 1)
+                self.construct_ast_node(",", "KEYWORD", n + 1)
 
     # Expression methods (ordered from lowest to highest precedence)
     def parse_application(self):
@@ -181,23 +181,23 @@ class ASTParser:
             "dummy",
         ]:
             self.parse_atom()
-            self.buildTree("gamma", "KEYWORD", 2)
+            self.construct_ast_node("gamma", "KEYWORD", 2)
 
     def parse_access(self):
         self.parse_application()
         while self.current_token.value == "@":
             self.read("@", "<OPERATOR>")
             self.read("UserDefined", "<IDENTIFIER>")
-            self.buildTree(self.prevToken.value, "ID", 0)
+            self.construct_ast_node(self.prevToken.value, "ID", 0)
             self.parse_application()
-            self.buildTree("@", "KEYWORD", 3)
+            self.construct_ast_node("@", "KEYWORD", 3)
 
     def parse_exponentiation(self):
         self.parse_access()
         if self.current_token.value == "**":
             self.read("**", "<OPERATOR>")
             self.parse_exponentiation()
-            self.buildTree("**", "KEYWORD", 2)
+            self.construct_ast_node("**", "KEYWORD", 2)
 
     def parse_multiplication(self):
         self.parse_exponentiation()
@@ -205,11 +205,11 @@ class ASTParser:
             if self.current_token.value == "*":
                 self.read("*", "<OPERATOR>")
                 self.parse_exponentiation()
-                self.buildTree("*", "OPERATOR", 2)
+                self.construct_ast_node("*", "OPERATOR", 2)
             elif self.current_token.value == "/":
                 self.read("/", "<OPERATOR>")
                 self.parse_exponentiation()
-                self.buildTree("/", "OPERATOR", 2)
+                self.construct_ast_node("/", "OPERATOR", 2)
 
     def parse_addition(self):
         if self.current_token.value == "+":
@@ -218,51 +218,51 @@ class ASTParser:
         elif self.current_token.value == "-":
             self.read("-", "<OPERATOR>")
             self.parse_multiplication()
-            self.buildTree("neg", "KEYWORD", 1)
+            self.construct_ast_node("neg", "KEYWORD", 1)
         else:
             self.parse_multiplication()
             while self.current_token.value in ["+", "-"]:
                 if self.current_token.value == "+":
                     self.read("+", "<OPERATOR>")
                     self.parse_multiplication()
-                    self.buildTree("+", "OPERATOR", 2)
+                    self.construct_ast_node("+", "OPERATOR", 2)
                 elif self.current_token.value == "-":
                     self.read("-", "<OPERATOR>")
                     self.parse_multiplication()
-                    self.buildTree("-", "OPERATOR", 2)
+                    self.construct_ast_node("-", "OPERATOR", 2)
 
     def parse_comparison(self):
         self.parse_addition()
         if self.current_token.value in ["gr", ">"]:
             self.read(self.current_token.value, "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("gr", "KEYWORD", 2)
+            self.construct_ast_node("gr", "KEYWORD", 2)
         elif self.current_token.value in ["ge", ">="]:
             self.read(self.current_token.value, "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("ge", "KEYWORD", 2)
+            self.construct_ast_node("ge", "KEYWORD", 2)
         elif self.current_token.value in ["ls", "<"]:
             self.read(self.current_token.value, "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("ls", "KEYWORD", 2)
+            self.construct_ast_node("ls", "KEYWORD", 2)
         elif self.current_token.value in ["le", "<="]:
             self.read(self.current_token.value, "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("le", "KEYWORD", 2)
+            self.construct_ast_node("le", "KEYWORD", 2)
         elif self.current_token.value == "eq":
             self.read("eq", "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("eq", "KEYWORD", 2)
+            self.construct_ast_node("eq", "KEYWORD", 2)
         elif self.current_token.value == "ne":
             self.read("ne", "<OPERATOR>")
             self.parse_addition()
-            self.buildTree("ne", "KEYWORD", 2)
+            self.construct_ast_node("ne", "KEYWORD", 2)
 
     def parse_negation_or_comparison(self):
         if self.current_token.value == "not":
             self.read("not", "<OPERATOR>")
             self.parse_comparison()
-            self.buildTree("not", "KEYWORD", 1)
+            self.construct_ast_node("not", "KEYWORD", 1)
         else:
             self.parse_comparison()
 
@@ -271,14 +271,14 @@ class ASTParser:
         while self.current_token.value == "&":
             self.read("&", "<OPERATOR>")
             self.parse_negation_or_comparison()
-            self.buildTree("&", "KEYWORD", 2)
+            self.construct_ast_node("&", "KEYWORD", 2)
 
     def parse_disjunction(self):
         self.parse_conjunction()
         while self.current_token.value == "or":
             self.read("or", "<OPERATOR>")
             self.parse_conjunction()
-            self.buildTree("or", "KEYWORD", 2)
+            self.construct_ast_node("or", "KEYWORD", 2)
 
     def parse_conditional(self):
         self.parse_disjunction()
@@ -291,14 +291,14 @@ class ASTParser:
                 return
             self.read("|", "<OPERATOR>")
             self.parse_conditional()
-            self.buildTree("->", "KEYWORD", 3)
+            self.construct_ast_node("->", "KEYWORD", 3)
 
     def parse_augmented_expr(self):
         self.parse_conditional()
         while self.current_token.value == "aug":
             self.read("aug", "<KEYWORD>")
             self.parse_conditional()
-            self.buildTree("aug", "KEYWORD", 2)
+            self.construct_ast_node("aug", "KEYWORD", 2)
 
     def parse_tuple(self):
         self.parse_augmented_expr()
@@ -310,7 +310,7 @@ class ASTParser:
                 n += 1
                 self.read(",", ",")
                 self.parse_augmented_expr()
-            self.buildTree("tau", "KEYWORD", n + 1)
+            self.construct_ast_node("tau", "KEYWORD", n + 1)
 
     # Declaration methods
     def parse_binding(self):
@@ -328,7 +328,7 @@ class ASTParser:
             if self.current_token.value == "=":
                 self.read("=", "<OPERATOR>")
                 self.parse_expression()
-                self.buildTree("=", "KEYWORD", 2)
+                self.construct_ast_node("=", "KEYWORD", 2)
             else:
                 self.parse_variable_binding()
                 n = 1
@@ -341,13 +341,13 @@ class ASTParser:
                     return
                 self.read("=", "<OPERATOR>")
                 self.parse_expression()
-                self.buildTree("fcn_form", "KEYWORD", n + 2)
+                self.construct_ast_node("fcn_form", "KEYWORD", n + 2)
 
     def parse_recursive_binding(self):
         if self.current_token.value == "rec":
             self.read("rec", "<KEYWORD>")
             self.parse_binding()
-            self.buildTree("rec", "KEYWORD", 1)
+            self.construct_ast_node("rec", "KEYWORD", 1)
         else:
             self.parse_binding()
 
@@ -359,14 +359,14 @@ class ASTParser:
             self.parse_recursive_binding()
             n += 1
         if n > 0:
-            self.buildTree("and", "KEYWORD", n + 1)
+            self.construct_ast_node("and", "KEYWORD", n + 1)
 
     def parse_definition(self):
         self.parse_and_bindings()
         while self.current_token.value == "within":
             self.read("within", "<KEYWORD>")
             self.parse_definition()
-            self.buildTree("within", "KEYWORD", 2)
+            self.construct_ast_node("within", "KEYWORD", 2)
 
     # Top-level expression methods
     def parse_where_expression(self):
@@ -374,7 +374,7 @@ class ASTParser:
         if self.current_token.value == "where":
             self.read("where", "<KEYWORD>")
             self.parse_recursive_binding()
-            self.buildTree("where", "KEYWORD", 2)
+            self.construct_ast_node("where", "KEYWORD", 2)
 
     def parse_expression(self):
         if self.current_token.value == "let":
@@ -386,7 +386,7 @@ class ASTParser:
                 return
             self.read("in", "<KEYWORD>")
             self.parse_expression()
-            self.buildTree("let", "KEYWORD", 2)
+            self.construct_ast_node("let", "KEYWORD", 2)
         elif self.current_token.value == "fn":
             self.read("fn", "<KEYWORD>")
             self.parse_variable_binding()
@@ -400,6 +400,6 @@ class ASTParser:
                 return
             self.read(".", "<OPERATOR>")
             self.parse_expression()
-            self.buildTree("lambda", "KEYWORD", n + 1)
+            self.construct_ast_node("lambda", "KEYWORD", n + 1)
         else:
             self.parse_where_expression()
