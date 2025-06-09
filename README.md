@@ -37,15 +37,15 @@ This project is a full implementation of an interpreter for **RPAL (Right-refere
 rpal-interpreter/
 ├── myrpal.py                    # Entry point to the interpreter
 ├── parser/                      # Parser module
-├── scanner/                     # Lexical analyzer (scanner)
+├── lexical_analyzer/                     # Lexical analyzer (scanner)
 ├── standardizer/                # AST standardizer module
-├── inputs/                      # Test input files
+├── pass/                      # Test input files
 │   ├── t1.txt
 │   ├── t2.txt
-│   └── ...
-├── input.txt                    # Default input file
+│   └── ...                   # Default input file
 ├── Makefile                     # Makefile to simplify usage
 └── README.md                    # Project documentation
+└── run_test.ps1
 ```
 
 ---
@@ -66,13 +66,8 @@ make run file=inputs/t1.txt
 make ast file=inputs/t1.txt
 ```
 
-#### 3. **Print Standardized AST (SAST)**
 
-```bash
-make sast file=inputs/t1.txt
-```
-
-#### 4. **Clean up bytecode/cache**
+#### 3. **Clean up bytecode/cache**
 
 ```bash
 make clean
@@ -85,25 +80,24 @@ make clean
 #### 1. **Run and print final output**
 
 ```bash
-python myrpal.py inputs/t1.txt
+python myrpal.py pass/t1.txt
 ```
 
 #### 2. **Print AST**
 
 ```bash
-python myrpal.py -ast inputs/t1.txt
+python myrpal.py -ast pass/t1.txt
 ```
 
-#### 3. **Print SAST**
-
-```bash
-python myrpal.py -sast inputs/t1.txt
-```
 
 > Note: If you're on Linux/Mac and `python` doesn't work, use `python3`.
 
 ---
-
+### 📄 Powershell test run
+* if you want run all the test cases in sam time run this command in terminal
+```powershell
+run_test.ps1
+```
 ## Troubleshooting
 
 ### 🐍 Python Not Found
@@ -114,7 +108,7 @@ python myrpal.py -sast inputs/t1.txt
 ### 📄 File Not Found
 
 * Make sure the input file path is correct.
-* For example, use `inputs/t2.txt` instead of just `t2.txt` if the file is inside the `inputs/` folder.
+* For example, use `pass/t2.txt` instead of just `t2.txt` if the file is inside the `pass/` folder.
 
 ---
 
