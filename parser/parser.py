@@ -132,14 +132,14 @@ class ASTParser:
             self.read("dummy", "<KEYWORD>")
             self.buildTree("dummy", "DUMMY", 0)
 
-    def Vb(self):
+    def parse_variable_binding(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
             self.buildTree(self.prevToken.value, "ID", 0)
         elif self.current_token.value == "(":
             self.read("(", "(")
             if self.current_token.type == "<IDENTIFIER>":
-                self.Vl()
+                self.parse_variable_list()
                 if self.current_token.value != ")":
                     print("Error: expected in")
                     self.errorExist = True
@@ -153,7 +153,7 @@ class ASTParser:
                 self.read(")", ")")
                 self.buildTree("()", "KEYWORD", 0)
 
-    def Vl(self):
+    def parse_variable_list(self):
         if self.current_token.type == "<IDENTIFIER>":
             self.read("UserDefined", "<IDENTIFIER>")
             self.buildTree(self.prevToken.value, "ID", 0)
@@ -183,7 +183,7 @@ class ASTParser:
             self.parse_atom()
             self.buildTree("gamma", "KEYWORD", 2)
 
-    def Ap(self):
+    def parse_access(self):
         self.R()
         while self.current_token.value == "@":
             self.read("@", "<OPERATOR>")
@@ -192,46 +192,46 @@ class ASTParser:
             self.R()
             self.buildTree("@", "KEYWORD", 3)
 
-    def Af(self):
-        self.Ap()
+    def parse_exponentiation(self):
+        self.parse_access()
         if self.current_token.value == "**":
             self.read("**", "<OPERATOR>")
-            self.Af()
+            self.parse_exponentiation()
             self.buildTree("**", "KEYWORD", 2)
 
-    def At(self):
-        self.Af()
+    def parse_multiplication(self):
+        self.parse_exponentiation()
         while self.current_token.value in ["*", "/"]:
             if self.current_token.value == "*":
                 self.read("*", "<OPERATOR>")
-                self.Af()
+                self.parse_exponentiation()
                 self.buildTree("*", "OPERATOR", 2)
             elif self.current_token.value == "/":
                 self.read("/", "<OPERATOR>")
-                self.Af()
+                self.parse_exponentiation()
                 self.buildTree("/", "OPERATOR", 2)
 
     def A(self):
         if self.current_token.value == "+":
             self.read("+", "<OPERATOR>")
-            self.At()
+            self.parse_multiplication()
         elif self.current_token.value == "-":
             self.read("-", "<OPERATOR>")
-            self.At()
+            self.parse_multiplication()
             self.buildTree("neg", "KEYWORD", 1)
         else:
-            self.At()
+            self.parse_multiplication()
             while self.current_token.value in ["+", "-"]:
                 if self.current_token.value == "+":
                     self.read("+", "<OPERATOR>")
-                    self.At()
+                    self.parse_multiplication()
                     self.buildTree("+", "OPERATOR", 2)
                 elif self.current_token.value == "-":
                     self.read("-", "<OPERATOR>")
-                    self.At()
+                    self.parse_multiplication()
                     self.buildTree("-", "OPERATOR", 2)
 
-    def Bp(self):
+    def parse_comparison(self):
         self.A()
         if self.current_token.value in ["gr", ">"]:
             self.read(self.current_token.value, "<OPERATOR>")
@@ -258,62 +258,62 @@ class ASTParser:
             self.A()
             self.buildTree("ne", "KEYWORD", 2)
 
-    def Bs(self):
+    def parse_negation_or_comparison(self):
         if self.current_token.value == "not":
             self.read("not", "<OPERATOR>")
-            self.Bp()
+            self.parse_comparison()
             self.buildTree("not", "KEYWORD", 1)
         else:
-            self.Bp()
+            self.parse_comparison()
 
-    def Bt(self):
-        self.Bs()
+    def parse_conjunction(self):
+        self.parse_negation_or_comparison()
         while self.current_token.value == "&":
             self.read("&", "<OPERATOR>")
-            self.Bs()
+            self.parse_negation_or_comparison()
             self.buildTree("&", "KEYWORD", 2)
 
-    def B(self):
-        self.Bt()
+    def parse_disjunction(self):
+        self.parse_conjunction()
         while self.current_token.value == "or":
             self.read("or", "<OPERATOR>")
-            self.Bt()
+            self.parse_conjunction()
             self.buildTree("or", "KEYWORD", 2)
 
-    def Tc(self):
-        self.B()
+    def parse_conditional(self):
+        self.parse_disjunction()
         if self.current_token.value == "->":
             self.read("->", "<OPERATOR>")
-            self.Tc()
+            self.parse_conditional()
             if self.current_token.value != "|":
                 print("Error: expected |")
                 self.errorExist = True
                 return
             self.read("|", "<OPERATOR>")
-            self.Tc()
+            self.parse_conditional()
             self.buildTree("->", "KEYWORD", 3)
 
-    def Ta(self):
-        self.Tc()
+    def parse_augmented_expr(self):
+        self.parse_conditional()
         while self.current_token.value == "aug":
             self.read("aug", "<KEYWORD>")
-            self.Tc()
+            self.parse_conditional()
             self.buildTree("aug", "KEYWORD", 2)
 
     def T(self):
-        self.Ta()
+        self.parse_augmented_expr()
         if self.current_token.value == ",":
             self.read(",", ",")
-            self.Ta()
+            self.parse_augmented_expr()
             n = 1
             while self.current_token.value == ",":
                 n += 1
                 self.read(",", ",")
-                self.Ta()
+                self.parse_augmented_expr()
             self.buildTree("tau", "KEYWORD", n + 1)
 
     # Declaration methods
-    def Db(self):
+    def parse_binding(self):
         if self.current_token.value == "(":
             self.read("(", "(")
             self.D()
@@ -324,16 +324,16 @@ class ASTParser:
             self.read(")", ")")
         n = 0
         if self.current_token.type == "<IDENTIFIER>":
-            self.Vl()
+            self.parse_variable_list()
             if self.current_token.value == "=":
                 self.read("=", "<OPERATOR>")
                 self.E()
                 self.buildTree("=", "KEYWORD", 2)
             else:
-                self.Vb()
+                self.parse_variable_binding()
                 n = 1
                 while self.current_token.type in ["<IDENTIFIER>", "("]:
-                    self.Vb()
+                    self.parse_variable_binding()
                     n += 1
                 if self.current_token.value != "=":
                     print("Error: expected in")
@@ -343,37 +343,37 @@ class ASTParser:
                 self.E()
                 self.buildTree("fcn_form", "KEYWORD", n + 2)
 
-    def Dr(self):
+    def parse_recursive_binding(self):
         if self.current_token.value == "rec":
             self.read("rec", "<KEYWORD>")
-            self.Db()
+            self.parse_binding()
             self.buildTree("rec", "KEYWORD", 1)
         else:
-            self.Db()
+            self.parse_binding()
 
-    def Da(self):
-        self.Dr()
+    def parse_and_bindings(self):
+        self.parse_recursive_binding()
         n = 0
         while self.current_token.value == "and":
             self.read("and", "<KEYWORD>")
-            self.Dr()
+            self.parse_recursive_binding()
             n += 1
         if n > 0:
             self.buildTree("and", "KEYWORD", n + 1)
 
     def D(self):
-        self.Da()
+        self.parse_and_bindings()
         while self.current_token.value == "within":
             self.read("within", "<KEYWORD>")
             self.D()
             self.buildTree("within", "KEYWORD", 2)
 
     # Top-level expression methods
-    def Ew(self):
+    def parse_where_expression(self):
         self.T()
         if self.current_token.value == "where":
             self.read("where", "<KEYWORD>")
-            self.Dr()
+            self.parse_recursive_binding()
             self.buildTree("where", "KEYWORD", 2)
 
     def E(self):
@@ -389,10 +389,10 @@ class ASTParser:
             self.buildTree("let", "KEYWORD", 2)
         elif self.current_token.value == "fn":
             self.read("fn", "<KEYWORD>")
-            self.Vb()
+            self.parse_variable_binding()
             n = 1
             while self.current_token.value in ["<IDENTIFIER>", "("]:
-                self.Vb()
+                self.parse_variable_binding()
                 n += 1
             if self.current_token.value != ".":
                 print("Error: expected .")
@@ -402,4 +402,4 @@ class ASTParser:
             self.E()
             self.buildTree("lambda", "KEYWORD", n + 1)
         else:
-            self.Ew()
+            self.parse_where_expression()
