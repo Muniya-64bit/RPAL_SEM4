@@ -316,7 +316,7 @@ class ASTParser:
     def parse_binding(self):
         if self.current_token.value == "(":
             self.read("(", "(")
-            self.D()
+            self.parse_definition()
             if self.current_token.value != ")":
                 print("Error: expected )")
                 self.errorExist = True
@@ -361,11 +361,11 @@ class ASTParser:
         if n > 0:
             self.buildTree("and", "KEYWORD", n + 1)
 
-    def D(self):
+    def parse_definition(self):
         self.parse_and_bindings()
         while self.current_token.value == "within":
             self.read("within", "<KEYWORD>")
-            self.D()
+            self.parse_definition()
             self.buildTree("within", "KEYWORD", 2)
 
     # Top-level expression methods
@@ -379,7 +379,7 @@ class ASTParser:
     def parse_expression(self):
         if self.current_token.value == "let":
             self.read("let", "<KEYWORD>")
-            self.D()
+            self.parse_definition()
             if self.current_token.value != "in":
                 print("Error: expected in")
                 self.errorExist = True
