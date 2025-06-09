@@ -17,40 +17,40 @@ class standardizer:
         self.transform_node(x)
 
     def copy_ast_node(self, x):
-        t = ASTNode(x.value, x.type)
-        t.left = x.left  # Shallow copy
-        t.right = None  # Setting right to None as in original code
-        return t
+        node = ASTNode(x.value, x.type)
+        node.left = x.left  # Shallow copy
+        node.right = None  # Setting right to None as in original code
+        return node
 
-    def transform_node(self, t):
-        if t is None:
+    def transform_node(self, node):
+        if node is None:
             return None
 
-        self.transform_node(t.left)
-        self.transform_node(t.right)
+        self.transform_node(node.left)
+        self.transform_node(node.right)
 
-        if t.get_label() == "let":
-            if t.left.get_label() == "=":
-                t.set_label("gamma")
-                t.set_node_type("KEYWORD")
-                P = self.copy_ast_node(t.left.right)
-                X = self.copy_ast_node(t.left.left)
-                E = self.copy_ast_node(t.left.left.right)
-                t.left = ASTNode("lambda", "KEYWORD")
-                t.left.right = E
-                lambda_node = t.left
+        if node.get_label() == "let":
+            if node.left.get_label() == "=":
+                node.set_label("gamma")
+                node.set_node_type("KEYWORD")
+                P = self.copy_ast_node(node.left.right)
+                X = self.copy_ast_node(node.left.left)
+                E = self.copy_ast_node(node.left.left.right)
+                node.left = ASTNode("lambda", "KEYWORD")
+                node.left.right = E
+                lambda_node = node.left
                 lambda_node.left = X
                 lambda_node.left.right = P
 
-        elif t.get_label() == "and" and t.left.get_label() == "=":
-            equal = t.left
-            t.set_label("=")
-            t.set_node_type("KEYWORD")
-            t.left = ASTNode(",", "PUNCTION")
-            comma = t.left
+        elif node.get_label() == "and" and node.left.get_label() == "=":
+            equal = node.left
+            node.set_label("=")
+            node.set_node_type("KEYWORD")
+            node.left = ASTNode(",", "PUNCTION")
+            comma = node.left
             comma.left = self.copy_ast_node(equal.left)
-            t.left.right = ASTNode("tau", "KEYWORD")
-            tau = t.left.right
+            node.left.right = ASTNode("tau", "KEYWORD")
+            tau = node.left.right
 
             tau.left = self.copy_ast_node(equal.left.right)
             tau = tau.left
@@ -64,59 +64,59 @@ class standardizer:
                 tau = tau.right
                 equal = equal.right
 
-        elif t.get_label() == "where":
-            t.set_label("gamma")
-            t.set_node_type("KEYWORD")
-            if t.left.right.get_label() == "=":
-                P = self.copy_ast_node(t.left)
-                X = self.copy_ast_node(t.left.right.left)
-                E = self.copy_ast_node(t.left.right.left.right)
-                t.left = ASTNode("lambda", "KEYWORD")
-                t.left.right = E
-                t.left.left = X
-                t.left.left.right = P
+        elif node.get_label() == "where":
+            node.set_label("gamma")
+            node.set_node_type("KEYWORD")
+            if node.left.right.get_label() == "=":
+                P = self.copy_ast_node(node.left)
+                X = self.copy_ast_node(node.left.right.left)
+                E = self.copy_ast_node(node.left.right.left.right)
+                node.left = ASTNode("lambda", "KEYWORD")
+                node.left.right = E
+                node.left.left = X
+                node.left.left.right = P
 
-        elif t.get_label() == "within":
-            if t.left.get_label() == "=" and t.left.right.get_label() == "=":
-                X1 = self.copy_ast_node(t.left.left)
-                E1 = self.copy_ast_node(t.left.left.right)
-                X2 = self.copy_ast_node(t.left.right.left)
-                E2 = self.copy_ast_node(t.left.right.left.right)
-                t.set_label("=")
-                t.set_node_type("KEYWORD")
-                t.left = X2
-                t.left.right = ASTNode("gamma", "KEYWORD")
-                temp = t.left.right
+        elif node.get_label() == "within":
+            if node.left.get_label() == "=" and node.left.right.get_label() == "=":
+                X1 = self.copy_ast_node(node.left.left)
+                E1 = self.copy_ast_node(node.left.left.right)
+                X2 = self.copy_ast_node(node.left.right.left)
+                E2 = self.copy_ast_node(node.left.right.left.right)
+                node.set_label("=")
+                node.set_node_type("KEYWORD")
+                node.left = X2
+                node.left.right = ASTNode("gamma", "KEYWORD")
+                temp = node.left.right
                 temp.left = ASTNode("lambda", "KEYWORD")
                 temp.left.right = E1
                 temp = temp.left
                 temp.left = X1
                 temp.left.right = E2
 
-        elif t.get_label() == "rec" and t.left.get_label() == "=":
-            X = self.copy_ast_node(t.left.left)
-            E = self.copy_ast_node(t.left.left.right)
+        elif node.get_label() == "rec" and node.left.get_label() == "=":
+            X = self.copy_ast_node(node.left.left)
+            E = self.copy_ast_node(node.left.left.right)
 
-            t.set_label("=")
-            t.set_node_type("KEYWORD")
-            t.left = X
-            t.left.right = ASTNode("gamma", "KEYWORD")
-            t.left.right.left = ASTNode("YSTAR", "KEYWORD")
-            ystar = t.left.right.left
+            node.set_label("=")
+            node.set_node_type("KEYWORD")
+            node.left = X
+            node.left.right = ASTNode("gamma", "KEYWORD")
+            node.left.right.left = ASTNode("YSTAR", "KEYWORD")
+            ystar = node.left.right.left
 
             ystar.right = ASTNode("lambda", "KEYWORD")
             ystar.right.left = self.copy_ast_node(X)
             ystar.right.left.right = self.copy_ast_node(E)
 
-        elif t.get_label() == "fcn_form":
-            P = self.copy_ast_node(t.left)
-            V = t.left.right
+        elif node.get_label() == "fcn_form":
+            P = self.copy_ast_node(node.left)
+            V = node.left.right
 
-            t.set_label("=")
-            t.set_node_type("KEYWORD")
-            t.left = P
+            node.set_label("=")
+            node.set_node_type("KEYWORD")
+            node.left = P
 
-            temp = t
+            temp = node
             while V.right.right is not None:
                 temp.left.right = ASTNode("lambda", "KEYWORD")
                 temp = temp.left.right
@@ -129,10 +129,10 @@ class standardizer:
             temp.left = self.copy_ast_node(V)
             temp.left.right = V.right
 
-        elif t.get_label() == "lambda":
-            if t.left is not None:
-                V = t.left
-                temp = t
+        elif node.get_label() == "lambda":
+            if node.left is not None:
+                V = node.left
+                temp = node
                 if V.right is not None and V.right.right is not None:
                     while V.right.right is not None:
                         temp.left.right = ASTNode("lambda", "KEYWORD")
@@ -145,18 +145,18 @@ class standardizer:
                     temp.left = self.copy_ast_node(V)
                     temp.left.right = V.right
 
-        elif t.get_label() == "@":
-            E1 = self.copy_ast_node(t.left)
-            N = self.copy_ast_node(t.left.right)
-            E2 = self.copy_ast_node(t.left.right.right)
-            t.set_label("gamma")
-            t.set_node_type("KEYWORD")
-            t.left = ASTNode("gamma", "KEYWORD")
-            t.left.right = E2
-            t.left.left = N
-            t.left.left.right = E1
+        elif node.get_label() == "@":
+            E1 = self.copy_ast_node(node.left)
+            N = self.copy_ast_node(node.left.right)
+            E2 = self.copy_ast_node(node.left.right.right)
+            node.set_label("gamma")
+            node.set_node_type("KEYWORD")
+            node.left = ASTNode("gamma", "KEYWORD")
+            node.left.right = E2
+            node.left.left = N
+            node.left.left.right = E1
 
-        self.ST = copy.deepcopy(t)
+        self.ST = copy.deepcopy(node)
         return None
 
     def build_control_structures(self, x, setOfControlStruct):
@@ -1108,6 +1108,6 @@ class standardizer:
         self.flatten_tuple(tau_node.right, res)
 
     def addSpaces(self, temp):
-        temp = temp.replace("\\n", '\n').replace("\\t", '\t')
+        temp = temp.replace("\\n", '\n').replace("\\node", '\node')
         temp = temp.replace("'", "")
         return temp
