@@ -112,6 +112,4 @@ run_test.ps1
 
 ---
 
-## License
-
-This project is for educational purposes and distributed under the MIT License.
+*End
