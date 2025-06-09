@@ -211,7 +211,7 @@ class ASTParser:
                 self.parse_exponentiation()
                 self.buildTree("/", "OPERATOR", 2)
 
-    def A(self):
+    def parse_addition(self):
         if self.current_token.value == "+":
             self.read("+", "<OPERATOR>")
             self.parse_multiplication()
@@ -232,30 +232,30 @@ class ASTParser:
                     self.buildTree("-", "OPERATOR", 2)
 
     def parse_comparison(self):
-        self.A()
+        self.parse_addition()
         if self.current_token.value in ["gr", ">"]:
             self.read(self.current_token.value, "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("gr", "KEYWORD", 2)
         elif self.current_token.value in ["ge", ">="]:
             self.read(self.current_token.value, "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("ge", "KEYWORD", 2)
         elif self.current_token.value in ["ls", "<"]:
             self.read(self.current_token.value, "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("ls", "KEYWORD", 2)
         elif self.current_token.value in ["le", "<="]:
             self.read(self.current_token.value, "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("le", "KEYWORD", 2)
         elif self.current_token.value == "eq":
             self.read("eq", "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("eq", "KEYWORD", 2)
         elif self.current_token.value == "ne":
             self.read("ne", "<OPERATOR>")
-            self.A()
+            self.parse_addition()
             self.buildTree("ne", "KEYWORD", 2)
 
     def parse_negation_or_comparison(self):
@@ -300,7 +300,7 @@ class ASTParser:
             self.parse_conditional()
             self.buildTree("aug", "KEYWORD", 2)
 
-    def T(self):
+    def parse_tuple(self):
         self.parse_augmented_expr()
         if self.current_token.value == ",":
             self.read(",", ",")
@@ -370,7 +370,7 @@ class ASTParser:
 
     # Top-level expression methods
     def parse_where_expression(self):
-        self.T()
+        self.parse_tuple()
         if self.current_token.value == "where":
             self.read("where", "<KEYWORD>")
             self.parse_recursive_binding()
