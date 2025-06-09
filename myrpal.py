@@ -43,7 +43,7 @@ if not hasInputError:
 
     if not hasInputError:
         myParser = ASTParser(tokens)  # Create parser with token list
-        myParser.startParsing(astFlag)  # Start parsing process
+        myParser.parse_tokens(astFlag)  # Start parsing process
         hasParsingError = myParser.isAnError()  # Check for parsing error
 
         if not hasParsingError:

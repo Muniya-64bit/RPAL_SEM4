@@ -39,14 +39,14 @@ class ASTParser:
         self.index = 0                # Index of current token
         self.stack = []               # Stack used during parsing
         self.prevToken = None         # Previous token processed
-        self.errorExist = False       # Flag for parsing errors
+        self.has_error = False       # Flag for parsing errors
 
     # Core parsing methods
-    def startParsing(self, astFlag):
+    def parse_tokens(self, astFlag):
         self.current_token = self.tokens[0]
         self.parse_expression()  # Start with E production rule
         
-        if self.errorExist:
+        if self.has_error:
             print("Parsing error")
         elif astFlag == "-ast":
             self.print_pre_order(self.stack[0])
@@ -56,7 +56,7 @@ class ASTParser:
             print("Input command incorrect.")
 
     def isAnError(self):
-        return self.errorExist
+        return self.has_error
 
     # Helper methods
     def read(self, value, type):
@@ -64,7 +64,7 @@ class ASTParser:
 
         if self.current_token.value != value and value != "UserDefined":
             print("Expected", self.current_token.value, "but got ", value)
-            self.errorExist = True
+            self.has_error = True
             return
 
         self.prevToken = self.current_token
@@ -85,7 +85,7 @@ class ASTParser:
                 head = child
             else:
                 print("There's an error in code")
-                self.errorExist = True
+                self.has_error = True
         parentNode.left = head
         self.stack.append(parentNode)
 
@@ -125,7 +125,7 @@ class ASTParser:
             self.parse_expression()
             if self.current_token.value != ")":
                 print("Error: expected )")
-                self.errorExist = True
+                self.has_error = True
                 return
             self.read(")", ")")
         elif self.current_token.value == "dummy":
@@ -142,13 +142,13 @@ class ASTParser:
                 self.parse_variable_list()
                 if self.current_token.value != ")":
                     print("Error: expected in")
-                    self.errorExist = True
+                    self.has_error = True
                     return
                 self.read(")", ")")
             else:
                 if self.current_token.value != ")":
                     print("Error: expected in")
-                    self.errorExist = True
+                    self.has_error = True
                     return
                 self.read(")", ")")
                 self.construct_ast_node("()", "KEYWORD", 0)
@@ -287,7 +287,7 @@ class ASTParser:
             self.parse_conditional()
             if self.current_token.value != "|":
                 print("Error: expected |")
-                self.errorExist = True
+                self.has_error = True
                 return
             self.read("|", "<OPERATOR>")
             self.parse_conditional()
@@ -319,7 +319,7 @@ class ASTParser:
             self.parse_definition()
             if self.current_token.value != ")":
                 print("Error: expected )")
-                self.errorExist = True
+                self.has_error = True
                 return
             self.read(")", ")")
         n = 0
@@ -337,7 +337,7 @@ class ASTParser:
                     n += 1
                 if self.current_token.value != "=":
                     print("Error: expected in")
-                    self.errorExist = True
+                    self.has_error = True
                     return
                 self.read("=", "<OPERATOR>")
                 self.parse_expression()
@@ -382,7 +382,7 @@ class ASTParser:
             self.parse_definition()
             if self.current_token.value != "in":
                 print("Error: expected in")
-                self.errorExist = True
+                self.has_error = True
                 return
             self.read("in", "<KEYWORD>")
             self.parse_expression()
@@ -396,7 +396,7 @@ class ASTParser:
                 n += 1
             if self.current_token.value != ".":
                 print("Error: expected .")
-                self.errorExist = True
+                self.has_error = True
                 return
             self.read(".", "<OPERATOR>")
             self.parse_expression()
