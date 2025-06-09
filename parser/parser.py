@@ -18,7 +18,7 @@ class ASTNode:
         return ASTNode(value, type)
 
     # Setter methods
-    def setType(self, type):
+    def set_node_type(self, type):
         self.type = type
 
     def setVal(self, value):

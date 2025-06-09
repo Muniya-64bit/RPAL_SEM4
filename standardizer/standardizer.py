@@ -32,7 +32,7 @@ class standardizer:
         if t.getVal() == "let":
             if t.left.getVal() == "=":
                 t.setVal("gamma")
-                t.setType("KEYWORD")
+                t.set_node_type("KEYWORD")
                 P = self.createNode(t.left.right)
                 X = self.createNode(t.left.left)
                 E = self.createNode(t.left.left.right)
@@ -45,7 +45,7 @@ class standardizer:
         elif t.getVal() == "and" and t.left.getVal() == "=":
             equal = t.left
             t.setVal("=")
-            t.setType("KEYWORD")
+            t.set_node_type("KEYWORD")
             t.left = ASTNode(",", "PUNCTION")
             comma = t.left
             comma.left = self.createNode(equal.left)
@@ -66,7 +66,7 @@ class standardizer:
 
         elif t.getVal() == "where":
             t.setVal("gamma")
-            t.setType("KEYWORD")
+            t.set_node_type("KEYWORD")
             if t.left.right.getVal() == "=":
                 P = self.createNode(t.left)
                 X = self.createNode(t.left.right.left)
@@ -83,7 +83,7 @@ class standardizer:
                 X2 = self.createNode(t.left.right.left)
                 E2 = self.createNode(t.left.right.left.right)
                 t.setVal("=")
-                t.setType("KEYWORD")
+                t.set_node_type("KEYWORD")
                 t.left = X2
                 t.left.right = ASTNode("gamma", "KEYWORD")
                 temp = t.left.right
@@ -98,7 +98,7 @@ class standardizer:
             E = self.createNode(t.left.left.right)
 
             t.setVal("=")
-            t.setType("KEYWORD")
+            t.set_node_type("KEYWORD")
             t.left = X
             t.left.right = ASTNode("gamma", "KEYWORD")
             t.left.right.left = ASTNode("YSTAR", "KEYWORD")
@@ -113,7 +113,7 @@ class standardizer:
             V = t.left.right
 
             t.setVal("=")
-            t.setType("KEYWORD")
+            t.set_node_type("KEYWORD")
             t.left = P
 
             temp = t
@@ -150,7 +150,7 @@ class standardizer:
             N = self.createNode(t.left.right)
             E2 = self.createNode(t.left.right.right)
             t.setVal("gamma")
-            t.setType("KEYWORD")
+            t.set_node_type("KEYWORD")
             t.left = ASTNode("gamma", "KEYWORD")
             t.left.right = E2
             t.left.left = N
